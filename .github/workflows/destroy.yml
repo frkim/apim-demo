@@ -1,0 +1,51 @@
+name: Destroy AI Gateway demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type the resource group name to delete it
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  destroy:
+    name: Delete resource group
+    runs-on: ubuntu-latest
+    environment: azure-demo
+    steps:
+      - name: Azure login (OIDC)
+        if: ${{ vars.AZURE_CLIENT_ID != '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure login (service principal secret)
+        if: ${{ vars.AZURE_CLIENT_ID == '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete resource group and purge AI Services accounts
+        env:
+          RESOURCE_GROUP: ${{ inputs.confirm }}
+        run: |
+          if [[ "$RESOURCE_GROUP" != rg-apimaigw-* ]]; then
+            echo "Refusing to delete '$RESOURCE_GROUP': only rg-apimaigw-* groups are managed by this workflow." >&2
+            exit 1
+          fi
+          accounts=$(az cognitiveservices account list -g "$RESOURCE_GROUP" --query "[].{name:name,location:location}" -o tsv)
+          az group delete --name "$RESOURCE_GROUP" --yes
+          while read -r name location; do
+            [ -n "$name" ] && az cognitiveservices account purge --name "$name" --resource-group "$RESOURCE_GROUP" --location "$location" || true
+          done <<< "$accounts"
+          # API Management v2 instances are soft-deleted; purge so the name can be reused.
+          for apim in $(az apim deletedservice list --query "[?contains(name, 'apimaigw')].{n:name,l:location}" -o tsv | awk '{print $1":"$2}'); do
+            az apim deletedservice purge --service-name "${apim%%:*}" --location "${apim##*:}" || true
+          done

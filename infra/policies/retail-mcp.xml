@@ -1,0 +1,20 @@
+<!-- MCP server policy: per-subscription call rate limit + trace metadata for MCP observability. -->
+<policies>
+    <inbound>
+        <base />
+        <rate-limit-by-key calls="30" renewal-period="60" counter-key="@(context.Subscription.Id + "-mcp")" />
+        <trace source="zava-retail-mcp" severity="information">
+            <message>MCP tool call</message>
+            <metadata name="subscription" value="@(context.Subscription.Name)" />
+        </trace>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

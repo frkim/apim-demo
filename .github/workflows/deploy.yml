@@ -1,0 +1,157 @@
+name: Deploy AI Gateway demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: Primary Azure region
+        type: choice
+        default: swedencentral
+        options:
+          - swedencentral
+          - francecentral
+          - eastus2
+      run_demo:
+        description: Run every demo scenario after the deployment
+        type: boolean
+        default: true
+  push:
+    branches:
+      - main
+    paths:
+      - infra/**
+      - demo/**
+      - .github/workflows/deploy.yml
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  LOCATION: ${{ inputs.location || 'swedencentral' }}
+  AZURE_RESOURCE_GROUP: rg-apimaigw-demo-swc
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  validate:
+    name: Validate Bicep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build and lint Bicep
+        run: |
+          az bicep install
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep lint --file infra/main.bicep
+
+  deploy:
+    name: Deploy to Azure
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: azure-demo
+    outputs:
+      apim-gateway-url: ${{ steps.deploy.outputs.apimGatewayUrl }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Preferred: workload identity federation (set repository variables AZURE_CLIENT_ID / AZURE_TENANT_ID /
+      # AZURE_SUBSCRIPTION_ID and a federated credential). Fallback: the AZURE_CREDENTIALS secret.
+      - name: Azure login (OIDC)
+        if: ${{ vars.AZURE_CLIENT_ID != '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure login (service principal secret)
+        if: ${{ vars.AZURE_CLIENT_ID == '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: What-if
+        run: |
+          az bicep install
+          az deployment sub what-if \
+            --name "apimaigw-${GITHUB_RUN_NUMBER}" \
+            --location "$LOCATION" \
+            --template-file infra/main.bicep \
+            --parameters location="$LOCATION" \
+            --result-format ResourceIdOnly
+
+      - name: Deploy
+        id: deploy
+        run: |
+          outputs=$(az deployment sub create \
+            --name "apimaigw-${GITHUB_RUN_NUMBER}" \
+            --location "$LOCATION" \
+            --template-file infra/main.bicep \
+            --parameters location="$LOCATION" \
+            --query properties.outputs -o json)
+          echo "$outputs" | jq -r 'to_entries[] | select(.value.type == "String") | "\(.key)=\(.value.value)"' >> "$GITHUB_OUTPUT"
+          {
+            echo "### AI Gateway deployed"
+            echo ""
+            echo "| Output | Value |"
+            echo "| --- | --- |"
+            echo "$outputs" | jq -r 'to_entries[] | select(.value.type == "String") | "| \(.key) | \(.value.value) |"'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  smoke-test:
+    name: Smoke test and demo
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: azure-demo
+    defaults:
+      run:
+        working-directory: demo
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: demo/requirements*.txt
+
+      - name: Install demo client
+        run: pip install -r requirements.txt
+
+      - name: Azure login (OIDC)
+        if: ${{ vars.AZURE_CLIENT_ID != '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure login (service principal secret)
+        if: ${{ vars.AZURE_CLIENT_ID == '' }}
+        uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Smoke test (chat, content safety, MCP)
+        env:
+          COLUMNS: '160'
+        run: |
+          python -m ai_gateway chat
+          python -m ai_gateway content-safety
+          python -m ai_gateway mcp
+
+      - name: Full demo
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_demo }}
+        env:
+          COLUMNS: '160'
+        run: |
+          sleep 60 # let the Bronze team's token bucket refill after earlier runs
+          python -m ai_gateway load-balance
+          python -m ai_gateway token-limit
+          python -m ai_gateway agent
+          python -m ai_gateway metrics

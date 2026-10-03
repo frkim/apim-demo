@@ -1,0 +1,36 @@
+version: 2
+
+registries:
+  microsoft-pypi:
+    type: python-index
+    url: https://packagefeedproxy.microsoft.io/pypi/simple
+  microsoft-npm:
+    type: npm-registry
+    url: https://packagefeedproxy.microsoft.io/npm/
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: pip
+    directory: /demo
+    registries:
+      - microsoft-pypi
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /docs/presentations
+    registries:
+      - microsoft-npm
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /docs/presentations/pptx
+    registries:
+      - microsoft-npm
+    schedule:
+      interval: weekly

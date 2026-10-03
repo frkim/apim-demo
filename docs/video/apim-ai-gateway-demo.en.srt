@@ -1,0 +1,168 @@
+1
+00:00:00,000 --> 00:00:00,473
+Welcome.
+
+2
+00:00:00,473 --> 00:00:08,108
+In this short demo, you'll see Azure API Management working as an AI gateway, in front of Microsoft Foundry models and MCP tools.
+
+3
+00:00:08,108 --> 00:00:09,232
+Everything is live.
+
+4
+00:00:09,232 --> 00:00:15,742
+The environment was deployed with Bicep, from a GitHub Actions workflow, in Sweden Central and France Central.
+
+5
+00:00:16,642 --> 00:00:17,833
+Here is the setup.
+
+6
+00:00:17,833 --> 00:00:22,661
+Apps and agents call one endpoint, on an API Management Basic v2 gateway.
+
+7
+00:00:22,661 --> 00:00:31,591
+Every request goes through a policy chain: managed identity authentication, content safety, a token budget per team, and token metrics.
+
+8
+00:00:31,591 --> 00:00:37,345
+A load-balanced backend pool then routes it to GPT 5.4 nano deployments in two regions.
+
+9
+00:00:37,345 --> 00:00:42,108
+The same gateway also exposes our Zava retail REST API as an MCP server.
+
+10
+00:00:43,008 --> 00:00:47,295
+Demo one: a chat completion through the gateway, with the standard OpenAI SDK.
+
+11
+00:00:47,295 --> 00:00:51,692
+The application only holds an API Management subscription key for the Gold team.
+
+12
+00:00:51,692 --> 00:00:53,396
+There is no model key anywhere.
+
+13
+00:00:53,396 --> 00:01:00,651
+The gateway authenticates to Foundry with its managed identity, and key authentication is actually disabled on the Foundry accounts.
+
+14
+00:01:00,651 --> 00:01:08,071
+The response headers show which regional backend served the call, the tokens used, and the tokens left in the team's per-minute budget.
+
+15
+00:01:08,971 --> 00:01:10,270
+Demo two: resiliency.
+
+16
+00:01:10,270 --> 00:01:16,640
+Six requests are spread across the backend pool, alternating between Sweden Central and France Central.
+
+17
+00:01:16,640 --> 00:01:18,805
+Each backend has a circuit breaker.
+
+18
+00:01:18,805 --> 00:01:28,206
+If a region starts returning 429 or server errors, the gateway trips it for a minute, honors Retry-After, and retries the request on the healthy region.
+
+19
+00:01:28,206 --> 00:01:29,753
+The client never notices.
+
+20
+00:01:30,653 --> 00:01:32,140
+Demo three: cost control.
+
+21
+00:01:32,140 --> 00:01:36,365
+The Bronze marketing sandbox gets only three hundred tokens per minute.
+
+22
+00:01:36,365 --> 00:01:43,743
+Watch the remaining tokens drop with each call, until the gateway answers 429, Too Many Requests, with a Retry-After header.
+
+23
+00:01:43,743 --> 00:01:48,027
+At the very same moment, the Gold customer support team is still served.
+
+24
+00:01:48,027 --> 00:01:53,561
+Each product also carries a monthly token quota, enforced by the same LLM token limit policy.
+
+25
+00:01:54,461 --> 00:01:55,483
+Demo four: safety.
+
+26
+00:01:55,483 --> 00:01:57,242
+A normal question goes through.
+
+27
+00:01:57,242 --> 00:02:08,364
+But a jailbreak attempt, asking the model to ignore its instructions and reveal customer data, is blocked by Prompt Shields at the gateway, with a 403, before a single token is spent on the model.
+
+28
+00:02:08,364 --> 00:02:15,570
+Hate, self-harm, sexual and violence categories are checked the same way, for every app, without changing any application code.
+
+29
+00:02:16,470 --> 00:02:17,407
+Demo five: MCP.
+
+30
+00:02:17,407 --> 00:02:23,900
+Our existing Zava retail REST API was turned into an MCP server by API Management, without writing code.
+
+31
+00:02:23,900 --> 00:02:30,580
+An MCP client initializes a session, lists two tools, search products and get order status, and calls them.
+
+32
+00:02:30,580 --> 00:02:38,696
+Because the MCP server is an API in the gateway, it gets the same subscription keys, rate limits and telemetry as everything else.
+
+33
+00:02:39,596 --> 00:02:40,746
+Demo six: an agent.
+
+34
+00:02:40,746 --> 00:02:45,952
+We ask which outdoor products cost less than one hundred euros, and where my order is.
+
+35
+00:02:45,952 --> 00:02:53,337
+The model, reached through the gateway, decides to call both MCP tools, also through the gateway, and composes the answer.
+
+36
+00:02:53,337 --> 00:02:56,787
+Model traffic and tool traffic are governed in one place.
+
+37
+00:02:57,687 --> 00:02:59,276
+Demo seven: observability.
+
+38
+00:02:59,276 --> 00:03:10,948
+The LLM emit token metric policy publishes prompt, completion and total tokens to Application Insights, with the product as a dimension, so you can show back or charge back AI costs per team.
+
+39
+00:03:10,948 --> 00:03:16,631
+LLM logging stores prompts and completions in Log Analytics, ready for audits and dashboards.
+
+40
+00:03:17,531 --> 00:03:30,243
+That's the AI gateway: keyless security, token budgets, content safety, resilient load balancing, MCP and agent governance, and token-level observability, starting at about one hundred fifty dollars a month with Basic v2.
+
+41
+00:03:30,243 --> 00:03:37,951
+The Bicep, the GitHub Actions workflows and the demo client are in the repository, and the AI Gateway labs on GitHub take you further.
+
+42
+00:03:37,951 --> 00:03:39,101
+Thanks for watching.
+
