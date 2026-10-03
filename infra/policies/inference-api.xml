@@ -1,0 +1,56 @@
+<!--
+  Inference API policy (AI gateway).
+  Product policies (gold / bronze) run first through <base /> and apply the per-team token budget.
+-->
+<policies>
+    <inbound>
+        <base />
+        <!-- Keyless: the gateway authenticates to Foundry with its managed identity. -->
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" />
+        <!-- Prompt Shields + harm categories before any token is spent on the model. -->
+        <llm-content-safety backend-id="content-safety" shield-prompt="true">
+            <categories output-type="EightSeverityLevels">
+                <category name="Hate" threshold="4" />
+                <category name="SelfHarm" threshold="4" />
+                <category name="Sexual" threshold="4" />
+                <category name="Violence" threshold="4" />
+            </categories>
+        </llm-content-safety>
+        <!-- Token usage as custom metrics for chargeback / showback. -->
+        <llm-emit-token-metric namespace="ai-gateway">
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Product" value="@(context.Product != null ? context.Product.Name : "none")" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+        </llm-emit-token-metric>
+        <!-- Load-balanced pool of regional Foundry backends with circuit breakers. -->
+        <set-backend-service backend-id="foundry-pool" />
+    </inbound>
+    <backend>
+        <!-- Retry once on throttling / unavailability: the pool skips the tripped backend. -->
+        <retry count="1" interval="0" first-fast-retry="true" condition="@(context.Response.StatusCode == 429 || context.Response.StatusCode == 503)">
+            <set-backend-service backend-id="foundry-pool" />
+            <forward-request buffer-request-body="true" />
+        </retry>
+    </backend>
+    <outbound>
+        <base />
+        <set-header name="x-ai-gateway-backend" exists-action="override">
+            <value>@(context.Request.Url.Host)</value>
+        </set-header>
+    </outbound>
+    <on-error>
+        <base />
+        <set-header name="x-ai-gateway-error" exists-action="override">
+            <value>@(context.LastError.Reason ?? context.LastError.Message)</value>
+        </set-header>
+        <choose>
+            <!-- Generic error that does not reveal backend pool details. -->
+            <when condition="@(context.Response.StatusCode == 503)">
+                <return-response>
+                    <set-status code="503" reason="Service Unavailable" />
+                </return-response>
+            </when>
+        </choose>
+    </on-error>
+</policies>

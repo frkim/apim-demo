@@ -1,0 +1,20 @@
+[project]
+name = "ai-gateway-demo"
+version = "1.0.0"
+description = "Demo client for the Azure API Management AI gateway session"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "BLE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true

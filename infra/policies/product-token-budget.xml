@@ -1,0 +1,23 @@
+<!-- Product (team) token budget: per-subscription tokens-per-minute + monthly token quota. -->
+<policies>
+    <inbound>
+        <base />
+        <llm-token-limit counter-key="@(context.Subscription.Id)"
+            tokens-per-minute="{tokens-per-minute}"
+            token-quota="{token-quota}"
+            token-quota-period="Monthly"
+            estimate-prompt-tokens="false"
+            remaining-tokens-header-name="x-ratelimit-remaining-tokens"
+            remaining-quota-tokens-header-name="x-quota-remaining-tokens"
+            tokens-consumed-header-name="x-tokens-consumed" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

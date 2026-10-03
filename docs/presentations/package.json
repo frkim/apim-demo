@@ -1,0 +1,14 @@
+{
+  "name": "apim-ai-gateway-presentation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Marp source and build scripts for the Azure API Management AI Gateway session deck.",
+  "scripts": {
+    "build:html": "marp apim-ai-gateway.md --theme-set theme --html --allow-local-files --output dist/apim-ai-gateway.html",
+    "build:pdf": "marp apim-ai-gateway.md --theme-set theme --html --pdf --allow-local-files --output dist/apim-ai-gateway.pdf",
+    "build:pptx": "marp apim-ai-gateway.md --theme-set theme --html --pptx --allow-local-files --output dist/apim-ai-gateway.pptx"
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "4.5.1"
+  }
+}

@@ -1,0 +1,64 @@
+<!--
+  Mock backend for the Zava retail REST API. API Management answers directly (return-response),
+  so the same API can be exposed unchanged as an MCP server.
+-->
+<policies>
+    <inbound>
+        <base />
+        <choose>
+            <when condition="@(context.Operation.Id == "search-products")">
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        var category = (context.Request.Url.Query.GetValueOrDefault("category", "outdoor") ?? "outdoor").ToLower();
+                        var products = new JArray();
+                        if (category == "outdoor") {
+                            products.Add(new JObject(new JProperty("name", "Trail backpack 30L"), new JProperty("sku", "ZV-OUT-001"), new JProperty("priceEur", 89.90), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "Ultralight tent"), new JProperty("sku", "ZV-OUT-002"), new JProperty("priceEur", 249.00), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "Headlamp 400lm"), new JProperty("sku", "ZV-OUT-003"), new JProperty("priceEur", 34.50), new JProperty("inStock", true)));
+                        } else if (category == "kitchen") {
+                            products.Add(new JObject(new JProperty("name", "Cast iron skillet"), new JProperty("sku", "ZV-KIT-001"), new JProperty("priceEur", 45.00), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "Chef knife 20cm"), new JProperty("sku", "ZV-KIT-002"), new JProperty("priceEur", 79.00), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "Espresso grinder"), new JProperty("sku", "ZV-KIT-003"), new JProperty("priceEur", 129.00), new JProperty("inStock", true)));
+                        } else if (category == "electronics") {
+                            products.Add(new JObject(new JProperty("name", "Noise-cancelling headphones"), new JProperty("sku", "ZV-ELE-001"), new JProperty("priceEur", 199.00), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "USB-C dock"), new JProperty("sku", "ZV-ELE-002"), new JProperty("priceEur", 149.00), new JProperty("inStock", true)));
+                            products.Add(new JObject(new JProperty("name", "Smart speaker"), new JProperty("sku", "ZV-ELE-003"), new JProperty("priceEur", 99.00), new JProperty("inStock", true)));
+                        }
+                        return new JObject(new JProperty("category", category), new JProperty("products", products)).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+            <when condition="@(context.Operation.Id == "get-order-status")">
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        var orderId = context.Request.MatchedParameters.GetValueOrDefault("orderId", "unknown");
+                        var statuses = new [] { "Out for delivery", "Shipped", "Processing", "Delivered" };
+                        var status = statuses[orderId.Length % statuses.Length];
+                        return new JObject(
+                            new JProperty("orderId", orderId),
+                            new JProperty("status", status),
+                            new JProperty("carrier", "Zava Express"),
+                            new JProperty("estimatedDelivery", DateTime.UtcNow.AddDays(2).ToString("yyyy-MM-dd"))).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

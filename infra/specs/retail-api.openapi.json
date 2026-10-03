@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Zava Retail API",
+    "description": "Product search and order tracking for the Zava retail demo.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://zava-retail.example.com"
+    }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "Search products by category",
+        "description": "Returns the products available in a category (outdoor, kitchen or electronics), with SKU and price in EUR.",
+        "operationId": "search-products",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Product category: outdoor, kitchen or electronics.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["outdoor", "kitchen", "electronics"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products in the category.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "summary": "Get order status",
+        "description": "Returns the delivery status, carrier and estimated delivery date for an order.",
+        "operationId": "get-order-status",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order identifier, for example ORD-1042.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProductList": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "sku": { "type": "string" },
+                "priceEur": { "type": "number" },
+                "inStock": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "OrderStatus": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "string" },
+          "status": { "type": "string" },
+          "carrier": { "type": "string" },
+          "estimatedDelivery": { "type": "string", "format": "date" }
+        }
+      }
+    }
+  }
+}
