@@ -68,3 +68,10 @@ flowchart LR
   Metrics --> AppInsights[Application Insights\ncustom token metrics]
   Metrics --> LogAnalytics[Log Analytics\nApiManagementGatewayLlmLog]
 ```
+
+## Dependency overrides
+
+Both `package.json` files pin patched transitive dependencies with npm `overrides` because the direct dependencies
+have no release that pulls them in yet: `@xmldom/xmldom`, `basic-ftp` and `@puppeteer/browsers` (drops the
+vulnerable `extract-zip`) for Marp CLI, and `image-size` for pptxgenjs. `npm audit` reports 0 vulnerabilities.
+Remove an override once the upstream package ships the fix.

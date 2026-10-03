@@ -9,5 +9,8 @@
   "dependencies": {
     "pptxgenjs": "4.0.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "overrides": {
+    "image-size": "2.0.4"
+  }
 }
