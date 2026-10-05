@@ -73,13 +73,14 @@ footer: "Oct 2026 edition"
 | 2026-09-04 | v2 overview refreshed; Premium v2 GA and Premium v2 scale to 30 units. |
 | 2026-08-18 | `llm-content-safety` also protects MCP tool calls and A2A agent API traffic. |
 | 2026-09-17 | `llm-emit-token-metric` adds preview cached, reasoning and thinking token categories. |
+| Oct 2026 | Foundry (new): resource + project per region in ai.azure.com; no classic hub or Azure OpenAI resource. |
 | 2026-06-23 | Programmatic MCP management: API tools sub-resource, `2025-09-01-preview`. |
 
 </div>
 
 <span class="pill">v2 tiers deploy in minutes</span><span class="pill">Unified model API preview</span><span class="pill">Foundry AI gateway preview</span>
 
-<!-- Speaker notes: These dates are from the research brief’s what’s-new table and should be treated as October 2026 context. Emphasize that the AI gateway surface changed quickly through 2026, especially MCP, A2A and token telemetry. Mention that preview items should be validated for production readiness before committing to them. The demo itself uses stable, deployed repo capabilities rather than relying on the preview unified model API. -->
+<!-- Speaker notes: These dates are from the research brief’s what’s-new table and should be treated as October 2026 context. Emphasize that the AI gateway surface changed quickly through 2026, especially MCP, A2A and token telemetry. Mention that preview items should be validated for production readiness before committing to them. The demo itself uses stable, deployed repo capabilities rather than relying on the preview unified model API. The Foundry environment is the current resource-plus-project model visible in ai.azure.com, not a classic hub-based project and not Azure OpenAI resources. -->
 
 ---
 
@@ -130,7 +131,7 @@ footer: "Oct 2026 edition"
 
 </div></div>
 
-<!-- Speaker notes: The demo environment disables local key auth on the Foundry accounts, so APIM’s managed identity is the trust boundary. The content-safety thresholds and categories reflect the brief: Hate, SelfHarm, Sexual and Violence at threshold 4 with eight severity levels. Explain that security is both authentication and safety screening. Keep the snippet short and conceptual rather than pretending it is the complete deployed policy. -->
+<!-- Speaker notes: The demo environment disables local key auth on the Foundry resources, so APIM’s managed identity is the trust boundary. The content-safety thresholds and categories reflect the brief: Hate, SelfHarm, Sexual and Violence at threshold 4 with eight severity levels. Explain that security is both authentication and safety screening. Keep the snippet short and conceptual rather than pretending it is the complete deployed policy. -->
 
 ---
 
@@ -226,6 +227,7 @@ footer: "Oct 2026 edition"
 - REST APIs can be exposed as MCP servers.
 - Existing MCP servers can be passed through APIM.
 - A2A agent APIs can be imported and mediated.
+- Responses API agents can use MCP tools converted to function tools.
 - API Center can register APIs, MCP servers and agents for discovery.
 
 </div><div class="code-small">
@@ -256,7 +258,7 @@ resource retailMcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
 
 <img class="arch-img" src="assets/architecture.svg" alt="APIM AI Gateway architecture" />
 
-<!-- Speaker notes: Walk left to right through the hand-authored architecture diagram. Apps and agents call APIM; APIM applies the policy chain; model traffic goes to the Sweden Central and France Central Foundry pool; MCP calls expose the Zava Retail REST API; telemetry flows to Application Insights and Log Analytics. Keep this consistent with the actual repo deployment: Basic v2 APIM in Sweden Central, system-assigned managed identity, gpt-5.4-nano in both Foundry regions. -->
+<!-- Speaker notes: Walk left to right through the hand-authored architecture diagram. Apps and agents call APIM; APIM applies the policy chain; model traffic goes to the Sweden Central and France Central Foundry pool; MCP calls expose the Zava Retail REST API; telemetry flows to Application Insights and Log Analytics. Keep this consistent with the actual repo deployment: Basic v2 APIM in Sweden Central, system-assigned managed identity, current Foundry resource plus project per region, gpt-6.1-sol version 2026-09-29 GA GlobalStandard with 100K TPM per region, OpenAI v1 endpoint through APIM, and key auth disabled. -->
 
 ---
 <!-- _class: section -->
@@ -264,15 +266,15 @@ resource retailMcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
 
 # What is deployed for the demo
 
-<div class="grid cols2 cards"><div class="dark-card"><h3>Gateway</h3><p>API Management <strong>Basic v2</strong> in Sweden Central, named `apim-apimaigw-demo-&lt;suffix&gt;`, with system-assigned managed identity.</p></div><div class="dark-card"><h3>Models</h3><p>Two Microsoft Foundry AI Services accounts: Sweden Central and France Central, each running <strong>gpt-5.4-nano</strong> GlobalStandard at 50K TPM.</p></div><div class="dark-card"><h3>Inference API</h3><p>OpenAI v1 compatible endpoint at `/inference/openai/v1`; the OpenAI SDK works unchanged.</p></div><div class="dark-card"><h3>Zava tools</h3><p>Mocked `/zava` REST operations exposed as MCP tools at `/zava-mcp/mcp`.</p></div></div>
+<div class="grid cols2 cards"><div class="dark-card"><h3>Gateway</h3><p>API Management <strong>Basic v2</strong> in Sweden Central, named `apim-apimaigw-demo-&lt;suffix&gt;`, with system-assigned managed identity.</p></div><div class="dark-card"><h3>Models</h3><p>Foundry resource + project in each region: `proj-apimaigw-swc` and `proj-apimaigw-frc`, running <strong>gpt-6.1-sol</strong> v2026-09-29 GA GlobalStandard at 100K TPM.</p></div><div class="dark-card"><h3>Inference API</h3><p>OpenAI v1 endpoint at `/inference/openai/v1`; APIM calls `https://&lt;account&gt;.services.ai.azure.com/openai/v1` with managed identity.</p></div><div class="dark-card"><h3>Zava tools</h3><p>Mocked `/zava` REST operations exposed as MCP tools at `/zava-mcp/mcp`; D6 uses Responses API tools.</p></div></div>
 
-<!-- Speaker notes: This slide prevents accidental drift from the actual repo environment. Stress that local key auth is disabled on the Foundry accounts, so APIM uses managed identity with the Cognitive Services OpenAI User role. Mention that the backend pool is weighted 50/50 with circuit breakers and retry. Point to the Python demo client as the command-line driver: `python -m ai_gateway <scenario>`. -->
+<!-- Speaker notes: This slide prevents accidental drift from the actual repo environment. Stress that local key auth is disabled on the Foundry resources, so APIM uses managed identity with the Cognitive Services OpenAI User role. Mention that the backend pool is weighted 50/50 with circuit breakers and retry. The model is gpt-6.1-sol, version 2026-09-29, GA, GlobalStandard, 100K TPM per region. Point to the Python demo client as the command-line driver: `python -m ai_gateway <scenario>`. -->
 
 ---
 
 # Demo map D1–D8
 
-<div class="demo-grid"><div class="demo"><b>D1</b><span>Keyless chat through gateway; show backend, region and token headers.</span></div><div class="demo"><b>D2</b><span>Six requests spread across Sweden Central and France Central; explain breaker.</span></div><div class="demo"><b>D3</b><span>Bronze hits 429 and monthly quota 403; Gold continues.</span></div><div class="demo"><b>D4</b><span>Benign prompt OK; jailbreak blocked by Prompt Shields.</span></div><div class="demo"><b>D5</b><span>MCP initialize, tools/list and tools/call through gateway.</span></div><div class="demo"><b>D6</b><span>Agent decides to call model and MCP tools via gateway.</span></div><div class="demo"><b>D7</b><span>Application Insights metrics and `ApiManagementGatewayLlmLog` KQL.</span></div><div class="demo"><b>D8</b><span>Bonus: Bicep + GitHub Actions deploy, smoke test and demo run.</span></div></div>
+<div class="demo-grid"><div class="demo"><b>D1</b><span>Keyless chat through gateway; 200 via Sweden Central with token headers.</span></div><div class="demo"><b>D2</b><span>Six requests alternate France Central and Sweden Central; explain breaker.</span></div><div class="demo"><b>D3</b><span>Bronze returns 200 x6 then 429 Retry-After 11; Gold continues.</span></div><div class="demo"><b>D4</b><span>Benign prompt OK; jailbreak blocked by Prompt Shields.</span></div><div class="demo"><b>D5</b><span>MCP initialize, tools/list and tool calls through gateway.</span></div><div class="demo"><b>D6</b><span>Responses API agent converts MCP tools to function tools.</span></div><div class="demo"><b>D7</b><span>Application Insights metrics and LLM log KQL.</span></div><div class="demo"><b>D8</b><span>Bonus: Bicep + GitHub Actions deploy, smoke test and demo run.</span></div></div>
 
 <!-- Speaker notes: Use this as the operator checklist during the live segment. Keep the order exactly as shown because later scenarios build on earlier ones. The backup slides that follow provide expected outputs if the live environment is slow or unavailable. Allocate roughly three minutes each for D1 through D7 and one minute for D8. -->
 
@@ -280,25 +282,25 @@ resource retailMcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
 
 # Backup expected output — D1 and D2
 
-<div class="grid cols2 cards"><div class="card"><h3>D1 keyless chat</h3><ul><li>HTTP 200 from `/inference/openai/v1`.</li><li>App sends APIM subscription key only.</li><li>Response headers include backend, region, tokens consumed and remaining token budget.</li><li>No model API key appears in app config.</li></ul></div><div class="card"><h3>D2 load balance & failover</h3><ul><li>Six requests alternate or distribute across Sweden Central and France Central.</li><li>429/5xx conditions are absorbed by retry where possible.</li><li>Circuit breaker honors backend `Retry-After` before reusing a tripped backend.</li></ul></div></div>
+<div class="grid cols2 cards"><div class="card"><h3>D1 keyless chat</h3><ul><li>HTTP 200 from `/inference/openai/v1` via Sweden Central.</li><li>App sends APIM subscription key only.</li><li>Token headers: 44 prompt, 94 completion, 19,862 remaining.</li><li>No model API key appears in app config.</li></ul></div><div class="card"><h3>D2 load balance & failover</h3><ul><li>Six requests alternate France Central / Sweden Central.</li><li>429/5xx conditions are absorbed by retry where possible.</li><li>Circuit breaker honors backend `Retry-After` before reusing a tripped backend.</li></ul></div></div>
 
-<!-- Speaker notes: These are backup talking points, not fake terminal output. Use them if the live endpoint is unavailable or a rate limit makes the demo noisy. For D1, the important proof is keyless backend access via managed identity and visible response headers. For D2, the important proof is that resiliency policy lives in APIM rather than in every client. -->
+<!-- Speaker notes: These are backup talking points from the verified live run. Use them if the live endpoint is unavailable or a rate limit makes the demo noisy. For D1, the important proof is keyless backend access via managed identity and visible response headers: 200 via Sweden Central, 44 prompt tokens, 94 completion tokens and 19,862 remaining. For D2, the important proof is that six calls alternate France Central and Sweden Central, and resiliency policy lives in APIM rather than in every client. -->
 
 ---
 
 # Backup expected output — D3 and D4
 
-<div class="grid cols2 cards"><div class="card"><h3>D3 token budgets</h3><ul><li>Bronze starts with `x-ratelimit-remaining-tokens` near 300 TPM.</li><li>After a few calls, Bronze receives <strong>429 Too Many Requests</strong> with `Retry-After`.</li><li>Gold keeps working with 20,000 TPM.</li><li>Monthly quota exhaustion returns <strong>403</strong>.</li></ul></div><div class="card"><h3>D4 content safety</h3><ul><li>Benign prompt passes to the model.</li><li>Jailbreak text such as “ignore all previous instructions … DAN …” is blocked before reaching the model.</li><li>Block reason maps to Prompt Shields / configured safety policy.</li></ul></div></div>
+<div class="grid cols2 cards"><div class="card"><h3>D3 token budgets</h3><ul><li>Bronze receives 200 x6 with remaining 239, 176, 123, 81, 9, 0.</li><li>Next Bronze call receives <strong>429 Too Many Requests</strong> with `Retry-After: 11`.</li><li>Gold keeps working with 20,000 TPM.</li></ul></div><div class="card"><h3>D4 content safety</h3><ul><li>Benign prompt passes with HTTP 200.</li><li>Jailbreak is blocked with 403.</li><li>Payload: `{"statusCode":403,"message":"Request failed content safety check."}`</li></ul></div></div>
 
-<!-- Speaker notes: D3 is the clearest business-value demo because the same gateway enforces different team budgets. Make the status-code distinction clear: rate limit is 429, quota exhaustion is 403. D4 shows that safety policy is centralized and can stop an unsafe prompt before model invocation. Avoid adding unsupported claims about exact error payload fields unless the live demo shows them. -->
+<!-- Speaker notes: D3 is the clearest business-value demo because the same gateway enforces different team budgets. Use the verified sequence: Bronze 200 x6 with remaining token values 239, 176, 123, 81, 9 and 0, then 429 with Retry-After 11; Gold still returns 200. D4 shows that safety policy is centralized and can stop an unsafe prompt before model invocation, returning the verified 403 payload. -->
 
 ---
 
 # Backup expected output — D5 and D6
 
-<div class="grid cols2 cards"><div class="card"><h3>D5 REST API as MCP</h3><ul><li>MCP `initialize` succeeds at `/zava-mcp/mcp`.</li><li>`tools/list` returns `search-products` and `get-order-status`.</li><li>`tools/call search-products` returns outdoor products.</li><li>`tools/call get-order-status` returns mocked order status.</li></ul></div><div class="card"><h3>D6 agent path</h3><ul><li>User asks: outdoor products under 100 EUR + order `ORD-1042`.</li><li>Model call goes through `/inference/openai/v1`.</li><li>Tool calls go through `/zava-mcp/mcp`.</li><li>Final answer combines product and order evidence.</li></ul></div></div>
+<div class="grid cols2 cards"><div class="card"><h3>D5 REST API as MCP</h3><ul><li>MCP `initialize` succeeds at `/zava-mcp/mcp`.</li><li>`tools/list` returns `search-products` and `get-order-status`.</li><li>`get-order-status` returns `ORD-1042` as Out for delivery.</li></ul></div><div class="card"><h3>D6 Responses API agent</h3><ul><li>POST `/inference/openai/v1/responses` through APIM.</li><li>MCP tool list becomes function tools; `store=false` keeps it stateless.</li><li>Encrypted reasoning items are resent for load-balanced turns.</li><li>Final answer cites backpack, headlamp and Zava Express order status.</li></ul></div></div>
 
-<!-- Speaker notes: These scenarios show why MCP belongs in the API estate. D5 proves that existing REST operations can be presented as MCP tools through APIM. D6 ties the model and tool calls together: both are governed by the same gateway. Make clear that the Zava Retail API is mocked in APIM for the session. -->
+<!-- Speaker notes: These scenarios show why MCP belongs in the API estate. D5 proves that existing REST operations can be presented as MCP tools through APIM. D6 ties the model and tool calls together through the Responses API: both model turns and MCP-derived function tools are governed by the same gateway policies for token limit, content safety and token metrics. The verified agent called both tools and answered: “Trail backpack 30L (€89.90) and Headlamp 400lm (€34.50) ... ORD-1042 is out for delivery with Zava Express.” Model turns were served by both France Central and Sweden Central. Make clear that the Zava Retail API is mocked in APIM for the session. -->
 
 ---
 

@@ -14,10 +14,12 @@
 
 - Confirm the resource group exists: `rg-apimaigw-demo-swc`.
 - Confirm APIM Basic v2 exists in Sweden Central: `apim-apimaigw-demo-<suffix>`.
-- Confirm two Microsoft Foundry AI Services accounts exist in Sweden Central and France Central.
-- Confirm each Foundry account has `gpt-5.4-nano` GlobalStandard with 50K TPM.
-- Confirm local key auth is disabled on the Foundry accounts.
-- Confirm APIM system-assigned managed identity has `Cognitive Services OpenAI User` on both Foundry accounts.
+- Confirm two current Microsoft Foundry resources exist in Sweden Central and France Central.
+- Confirm the current Foundry portal [ai.azure.com](https://ai.azure.com) shows projects `proj-apimaigw-swc` and `proj-apimaigw-frc`.
+- Confirm each Foundry resource has `gpt-6.1-sol` version `2026-09-29` GlobalStandard with 100K TPM.
+- Confirm local key auth is disabled on the Foundry resources.
+- Confirm APIM system-assigned managed identity has `Cognitive Services OpenAI User` and `Cognitive Services User` on both Foundry resources.
+- Confirm the deployment/operator identity has `Foundry User` on both Foundry resources.
 - Confirm APIM backend pool `foundry-pool` has both backends, weighted 50/50.
 - Confirm Gold and Bronze products exist with product-scope token policies.
 - Confirm Application Insights has custom metrics namespace `ai-gateway`.
@@ -43,6 +45,7 @@ python -m ai_gateway load-balance
 python -m ai_gateway token-limit
 python -m ai_gateway content-safety
 python -m ai_gateway mcp
+python -m ai_gateway agent
 python -m ai_gateway metrics
 ```
 
@@ -51,6 +54,7 @@ python -m ai_gateway metrics
   - APIM > Backends > `foundry-pool`.
   - APIM > Products > Gold and Bronze policies.
   - APIM > MCP servers blade.
+  - Foundry portal [ai.azure.com](https://ai.azure.com) > projects `proj-apimaigw-swc` and `proj-apimaigw-frc`.
   - Application Insights > Metrics, namespace `ai-gateway`.
   - Log Analytics query editor.
 
@@ -78,6 +82,7 @@ python -m ai_gateway metrics
 **Setup:**
 
 - APIM inference API path: `/inference/openai/v1`.
+- APIM model backends target `https://<account>.services.ai.azure.com/openai` and the OpenAI v1 path `/openai/v1/...`.
 - App uses an APIM subscription key only.
 - Foundry local key auth is disabled.
 
@@ -93,6 +98,7 @@ python -m ai_gateway chat
 - APIM > APIs > Inference API > Inbound policy.
 - Highlight managed identity policy and backend routing to the inference backend or pool.
 - Show Backends > `foundry-pool` if needed.
+- Show the current Foundry project in [ai.azure.com](https://ai.azure.com), including project endpoint `https://<account>.services.ai.azure.com/api/projects/<project>`.
 
 **Talk track:**
 
@@ -100,14 +106,14 @@ python -m ai_gateway chat
 
 **Expected output:**
 
-- A normal chat completion response.
-- Response headers showing backend, region, and token consumption, such as remaining tokens and tokens consumed.
+- HTTP 200 through Sweden Central.
+- Response headers showing 44 prompt tokens, 94 total tokens, and 19,862 remaining tokens.
 - Evidence that the request went through the gateway endpoint.
 
 **If it fails:**
 
 - If Azure CLI config resolution fails, run `az account show` and confirm the active subscription.
-- If auth fails, show the portal role assignment: APIM managed identity has `Cognitive Services OpenAI User` on both Foundry accounts.
+- If auth fails, show the portal role assignment: APIM managed identity has `Cognitive Services OpenAI User` on both Foundry resources.
 - Fallback: show the saved D1 output and continue to D2.
 
 ---
@@ -137,7 +143,7 @@ python -m ai_gateway load-balance
 **Expected output:**
 
 - Six successful requests.
-- Backend or region values alternate or distribute across Sweden Central and France Central.
+- Backend or region values alternate France Central and Sweden Central.
 - Token headers appear for each request.
 
 **If it fails:**
@@ -178,7 +184,7 @@ python -m ai_gateway token-limit
 
 **Expected output:**
 
-- Bronze succeeds for early calls, then receives `429 Too Many Requests` with `Retry-After`.
+- Bronze succeeds six times with remaining tokens 239, 176, 123, 81, 9, and 0, then receives `429 Too Many Requests` with `Retry-After: 11`.
 - Gold request succeeds after Bronze is throttled.
 - Headers show remaining and consumed tokens.
 
@@ -214,8 +220,8 @@ python -m ai_gateway content-safety
 
 **Expected output:**
 
-- Benign prompt returns a normal response.
-- Jailbreak prompt is blocked with a clear policy or safety response.
+- Benign prompt returns a normal response beginning `REI Co-op Half Dome SL 2+...`.
+- Jailbreak prompt is blocked with HTTP 403 and `Request failed content safety check.`
 - The script indicates the blocked request did not reach the model.
 
 **If it fails:**
@@ -260,7 +266,7 @@ python -m ai_gateway mcp
 - MCP initialize succeeds.
 - `tools/list` returns `search-products` and `get-order-status`.
 - `tools/call search-products` returns outdoor products.
-- `tools/call get-order-status` returns status for an order such as `ORD-1042`.
+- `tools/call get-order-status` returns `ORD-1042` as `Out for delivery`.
 
 **If it fails:**
 
@@ -273,7 +279,7 @@ python -m ai_gateway mcp
 ## D6 — Agent using model and MCP tools through the gateway
 
 **Time:** 4 minutes  
-**Goal:** Show an agent-style flow where the model decides to call MCP tools, and both model and tool traffic pass through APIM.
+**Goal:** Show an agent-style Responses API flow where the model decides to call MCP tools, and both model and tool traffic pass through APIM.
 
 **Prompt:**
 
@@ -294,13 +300,14 @@ python -m ai_gateway agent
 
 **Talk track:**
 
-"This is the end-state pattern. The app asks a business question. The model call goes through the inference gateway. The tool calls go through the MCP gateway. Zava can govern both parts of the agent loop instead of letting tools bypass policy."
+"This is the end-state pattern. The app asks a business question. Because `gpt-6.1-sol` is a reasoning model and function tools are not supported on Chat Completions with reasoning, the agent uses `POST /inference/openai/v1/responses`. It runs statelessly with `store=False`, `include=[\"reasoning.encrypted_content\"]`, and the full input resent each turn because APIM load-balances across regions. The model call goes through the inference gateway. The tool calls go through the MCP gateway. Zava can govern both parts of the agent loop instead of letting tools bypass policy."
 
 **Expected output:**
 
 - The model identifies the need to search products and check order status.
-- MCP tool calls are shown.
-- Final answer combines outdoor products under 100 EUR and order `ORD-1042` status.
+- MCP tool calls `search-products` and `get-order-status` are shown.
+- Model turns are served by France Central and Sweden Central.
+- Final answer names `Trail backpack 30L (€89.90)` and `Headlamp 400lm (€34.50)`, and says `ORD-1042` is out for delivery with Zava Express.
 
 **If it fails:**
 

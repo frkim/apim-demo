@@ -1,6 +1,6 @@
 # Copilot instructions
 
-This repository demonstrates Azure API Management as an AI gateway for Foundry model deployments, MCP tools, and agent traffic.
+This repository demonstrates Azure API Management as an AI gateway for current Foundry resources and projects, MCP tools, and agent traffic.
 Read [../AGENTS.md](../AGENTS.md) before making changes.
 
 Follow the engineering standards from <https://github.com/frkim/ai-coding-standards>, especially the documentation, GitHub, security, and Azure standards.

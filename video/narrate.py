@@ -1,7 +1,7 @@
 """Synthesize the English narration with Azure AI Speech using Microsoft Entra ID (no keys).
 
 The token comes from the Azure CLI. The identity needs the 'Cognitive Services Speech User' role on the
-Foundry (AI Services) account; infra/modules/foundry.bicep grants it to the deployment identity.
+Foundry resource; infra/modules/foundry.bicep grants it to the deployment identity.
 """
 
 from __future__ import annotations

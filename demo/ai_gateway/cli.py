@@ -111,11 +111,13 @@ def run_mcp(cfg: DemoConfig) -> bool:
 
 def run_agent(cfg: DemoConfig) -> bool:
     _title("D6", "Agent: model + MCP tools, both governed by the gateway")
+    console.print(f"[dim]POST {cfg.inference_base_url}/responses  (Responses API, function tools from MCP)[/]")
     console.print(f"[bold]User:[/] {AGENT_QUESTION}")
     result = scenarios.agent(cfg, AGENT_QUESTION)
     for step in result.tool_calls:
         console.print(f"[cyan]tool call[/] {step['tool']}({json.dumps(step['arguments'])}) -> {step['result'][:160]}")
     console.print(Panel(result.answer, title="Agent answer", border_style="green"))
+    console.print(f"Model turns served by: {', '.join(result.regions)}")
     return bool(result.tool_calls) and bool(result.answer)
 
 

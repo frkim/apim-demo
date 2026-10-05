@@ -21,14 +21,14 @@ param foundryBackends array = [
   { name: 'frc', location: 'francecentral', priority: 1, weight: 50 }
 ]
 
-@description('Model deployed on every Foundry backend.')
-param modelName string = 'gpt-5.4-nano'
+@description('Model deployed on every Foundry backend (GPT-6.1 Sol, GA, GlobalStandard).')
+param modelName string = 'gpt-6.1-sol'
 
 @description('Model version.')
-param modelVersion string = '2026-03-17'
+param modelVersion string = '2026-09-29'
 
 @description('Deployment capacity in thousands of tokens per minute (GlobalStandard).')
-param modelCapacity int = 50
+param modelCapacity int = 100
 
 @description('API Management SKU. BasicV2 is the smallest v2 tier that supports the AI gateway and MCP features used here.')
 @allowed([
@@ -87,6 +87,7 @@ output mcpEndpoint string = workloadResources.outputs.mcpEndpoint
 output modelDeploymentName string = workloadResources.outputs.modelDeploymentName
 output foundryEndpoints array = workloadResources.outputs.foundryEndpoints
 output primaryFoundryId string = workloadResources.outputs.primaryFoundryId
+output primaryFoundryProjectEndpoint string = workloadResources.outputs.primaryFoundryProjectEndpoint
 output primaryFoundryLocation string = workloadResources.outputs.primaryFoundryLocation
 output appInsightsName string = workloadResources.outputs.appInsightsName
 output logAnalyticsCustomerId string = workloadResources.outputs.logAnalyticsCustomerId

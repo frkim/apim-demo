@@ -59,8 +59,8 @@ flowchart LR
     APIM --> MI --> Budget --> Safety --> Pool --> Metrics
   end
 
-  Pool --> FoundrySE[Foundry Sweden Central\ngpt-5.4-nano · GlobalStandard · 50K TPM]
-  Pool --> FoundryFR[Foundry France Central\ngpt-5.4-nano · GlobalStandard · 50K TPM]
+  Pool --> FoundrySE[Foundry project · Sweden Central\nproj-apimaigw-swc\ngpt-6.1-sol · GlobalStandard · 100K TPM]
+  Pool --> FoundryFR[Foundry project · France Central\nproj-apimaigw-frc\ngpt-6.1-sol · GlobalStandard · 100K TPM]
 
   Agents --> MCP[MCP server\n/zava-mcp/mcp]
   MCP --> Zava[Zava Retail REST API\nsearch-products\nget-order-status]

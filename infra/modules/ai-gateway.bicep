@@ -5,7 +5,7 @@ param apimName string
 @description('Foundry backends: name, endpoint, priority, weight.')
 param backends array
 
-@description('Endpoint used by llm-content-safety (an AI Services account exposes the Content Safety API).')
+@description('Endpoint used by llm-content-safety (a Foundry resource exposes the Content Safety API on its Cognitive Services endpoint).')
 param contentSafetyEndpoint string
 
 param appInsightsLoggerId string

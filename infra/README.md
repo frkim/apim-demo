@@ -1,7 +1,7 @@
 # Infrastructure
 
 The `infra/` folder deploys the Azure API Management AI Gateway demo at subscription scope.
-`main.bicep` creates the resource group and delegates workload resources to `resources.bicep`, which composes monitoring, API Management, Foundry AI Services, and gateway policies.
+`main.bicep` creates the resource group and delegates workload resources to `resources.bicep`, which composes monitoring, API Management, current Foundry resources and projects, and gateway policies.
 
 ## Resources
 
@@ -11,9 +11,10 @@ The `infra/` folder deploys the Azure API Management AI Gateway demo at subscrip
 | Log Analytics workspace | [modules/monitoring.bicep](modules/monitoring.bicep) | APIM platform logs, Foundry metrics, and LLM logs. |
 | Application Insights | [modules/monitoring.bicep](modules/monitoring.bicep) | Request telemetry and custom token metrics. |
 | API Management Basic v2 | [modules/apim.bicep](modules/apim.bicep) | Public AI gateway with system-assigned managed identity. |
-| Foundry AI Services accounts | [modules/foundry.bicep](modules/foundry.bicep) | Regional model backends in Sweden Central and France Central. |
-| Model deployments | [modules/foundry.bicep](modules/foundry.bicep) | `gpt-5.4-nano` GlobalStandard deployments at 50K TPM. |
-| Inference API | [modules/ai-gateway.bicep](modules/ai-gateway.bicep) | OpenAI v1-compatible path `/inference/openai/v1`. |
+| Foundry resources | [modules/foundry.bicep](modules/foundry.bicep) | Regional `Microsoft.CognitiveServices/accounts` resources of kind `AIServices`, API `2026-07-01`, with `allowProjectManagement: true`. |
+| Foundry projects | [modules/foundry.bicep](modules/foundry.bicep) | Current Foundry portal projects `proj-apimaigw-swc` and `proj-apimaigw-frc`, visible in [ai.azure.com](https://ai.azure.com). |
+| Model deployments | [modules/foundry.bicep](modules/foundry.bicep) | `gpt-6.1-sol` version `2026-09-29` GlobalStandard deployments at 100K TPM. |
+| Inference API | [modules/ai-gateway.bicep](modules/ai-gateway.bicep) | OpenAI v1-compatible path `/inference/openai/v1` with pass-through `/*` operations for Chat Completions and Responses API. |
 | Backend pool | [modules/ai-gateway.bicep](modules/ai-gateway.bicep) | Load-balanced `foundry-pool` with circuit breakers. |
 | Products and subscriptions | [modules/ai-gateway.bicep](modules/ai-gateway.bicep) | Gold and Bronze team budgets and keys. |
 | Zava REST API | [specs/retail-api.openapi.json](specs/retail-api.openapi.json) | Mocked product search and order status API. |
@@ -28,9 +29,9 @@ The `infra/` folder deploys the Azure API Management AI Gateway demo at subscrip
 | `location` | `swedencentral` | Primary region for APIM, monitoring, and first Foundry backend. |
 | `locationShort` | `swc` | Short region code in the resource group name. |
 | `foundryBackends` | Sweden Central and France Central | Regional Foundry backends with priority and weight. |
-| `modelName` | `gpt-5.4-nano` | Model deployment name. |
-| `modelVersion` | `2026-03-17` | Model version. |
-| `modelCapacity` | `50` | GlobalStandard deployment capacity in thousands of TPM. |
+| `modelName` | `gpt-6.1-sol` | Model deployment name. |
+| `modelVersion` | `2026-09-29` | Model version. |
+| `modelCapacity` | `100` | GlobalStandard deployment capacity in thousands of TPM. |
 | `apimSku` | `BasicV2` | APIM SKU; allowed values are `BasicV2`, `StandardV2`, `PremiumV2`, and `Developer`. |
 | `publisherEmail` | `apim-demo@contoso.com` | APIM publisher email. |
 | `owner` | `apim-demo` | Required owner tag. |
@@ -46,8 +47,9 @@ The `infra/` folder deploys the Azure API Management AI Gateway demo at subscrip
 | `inferenceBaseUrl` | OpenAI-compatible base URL ending in `/inference/openai/v1`. |
 | `mcpEndpoint` | MCP endpoint ending in `/zava-mcp/mcp`. |
 | `modelDeploymentName` | Deployed model name. |
-| `foundryEndpoints` | Regional Foundry endpoint list. |
-| `primaryFoundryId` | Resource ID of the primary Foundry account. |
+| `foundryEndpoints` | Regional Foundry endpoint list, including each account endpoint and `projectEndpoint`. |
+| `primaryFoundryId` | Resource ID of the primary Foundry resource. |
+| `primaryFoundryProjectEndpoint` | Primary Foundry project endpoint, for example `https://<account>.services.ai.azure.com/api/projects/<project>`. |
 | `primaryFoundryLocation` | Primary Foundry region. |
 | `appInsightsName` | Application Insights component name. |
 | `logAnalyticsCustomerId` | Workspace customer ID used by the demo client. |
@@ -56,7 +58,7 @@ The `infra/` folder deploys the Azure API Management AI Gateway demo at subscrip
 
 | Policy | Purpose |
 | --- | --- |
-| [policies/inference-api.xml](policies/inference-api.xml) | Managed identity to Foundry, content safety, token metrics, backend pool routing, retry, and safe error headers. |
+| [policies/inference-api.xml](policies/inference-api.xml) | Managed identity to Foundry, content safety, token metrics, backend pool routing, retry, pass-through OpenAI v1 operations, and safe error headers. |
 | [policies/product-token-budget.xml](policies/product-token-budget.xml) | Product-scope `llm-token-limit` for tokens per minute and monthly quota. |
 | [policies/retail-api.xml](policies/retail-api.xml) | Mocked Zava REST API responses for product search and order status. |
 | [policies/retail-mcp.xml](policies/retail-mcp.xml) | MCP per-subscription rate limit and trace metadata. |
@@ -80,6 +82,8 @@ az deployment sub create -n apimaigw-demo -l swedencentral -f infra\main.bicep
 az bicep build --file infra\main.bicep --stdout > $null
 az bicep lint --file infra\main.bicep
 ```
+
+After deployment, APIM backends target `https://<account>.services.ai.azure.com/openai`, while content safety uses the account's `*.cognitiveservices.azure.com` endpoint. The deployment identity is granted the `Foundry User` role on each Foundry resource so presenters can open the projects in the current Foundry portal.
 
 After deployment, run the smoke scenarios:
 

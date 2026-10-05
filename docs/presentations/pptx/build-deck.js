@@ -127,10 +127,10 @@ let n = 0;
   s.addText("Security, cost control, resiliency and observability for every AI call — Oct 2026 edition", { x: 0.82, y: 3.36, w: 7.3, h: 0.34, fontFace: "Segoe UI", fontSize: 13.5, color: "AFC3DA", margin: 0, fit: "shrink" });
   addChip(s, 0.82, 4.15, "90 min", C.amber, C.navy, 0.9);
   addChip(s, 1.86, 4.15, "Basic v2 demo", C.paleTeal, C.navy, 1.35);
-  addChip(s, 3.35, 4.15, "gpt-5.4-nano", C.paleBlue, C.navy, 1.35);
+  addChip(s, 3.35, 4.15, "gpt-6.1-sol", C.paleBlue, C.navy, 1.35);
   s.addShape(SH.rect, { x: 0, y: 6.72, w: W, h: 0.78, fill: { color: "06152D" }, line: { color: "06152D" } });
   s.addText("Zava Retail: from AI sprawl to a governed gateway", { x: 0.82, y: 6.98, w: 5.0, h: 0.18, fontFace: "Segoe UI Semibold", fontSize: 9.5, color: C.teal, margin: 0 });
-  addNotes(s, "Open with the promise of the session: one control point for every AI call. Set expectations that this is a technical, demo-led walkthrough using Basic v2, Microsoft Foundry in Sweden Central and France Central, and gpt-5.4-nano. Emphasize that the deck doubles as a fallback narrative if the live demo environment misbehaves.");
+  addNotes(s, "Open with the promise of the session: one control point for every AI call. Set expectations that this is a technical, demo-led walkthrough using Basic v2, Microsoft Foundry resources and projects in Sweden Central and France Central, and gpt-6.1-sol. Emphasize that the deck doubles as a fallback narrative if the live demo environment misbehaves.");
 }
 
 {
@@ -215,7 +215,7 @@ sectionSlide(++n, "Section 3", "APIM in 2026", "15–25 · 10 min", "This sectio
     ["Sep 2026", "Premium v2 GA and v2 scale refreshed: Basic/Standard v2 to 10 units, Premium v2 to 30."],
     ["Aug 2026", "llm-content-safety protects MCP tool calls and A2A agent API traffic."],
     ["Jun 2026", "Programmatic MCP management via API tools sub-resource, 2025-09-01-preview."],
-    ["2026 preview", "Unified model API and Foundry-integrated AI gateway."],
+    ["Oct 2026", "Foundry (new): resource + project per region in ai.azure.com; no classic hub or Azure OpenAI resource."],
     ["Sep 2026", "Token metrics include cached, reasoning and thinking token categories in preview."],
   ];
   updates.forEach((u, i) => {
@@ -225,7 +225,7 @@ sectionSlide(++n, "Section 3", "APIM in 2026", "15–25 · 10 min", "This sectio
   addChip(s, 9.5, 5.95, "MCP", C.paleTeal, C.navy, 0.78);
   addChip(s, 10.42, 5.95, "A2A", C.paleBlue, C.navy, 0.78);
   addChip(s, 11.34, 5.95, "Unified API", C.paleAmber, C.navy, 1.2);
-  addNotes(s, "This slide is intentionally dated. The point is that APIM is not only an API product anymore; it has first-class patterns for model APIs, MCP servers and A2A agents. Cite the updated Learn pages and research brief when challenged on dates.");
+  addNotes(s, "This slide is intentionally dated. The point is that APIM is not only an API product anymore; it has first-class patterns for model APIs, MCP servers and A2A agents. The deployed Foundry platform is the current resource plus project model in ai.azure.com, not the classic hub-based project pattern. Cite the updated Learn pages and research brief when challenged on dates.");
 }
 function slideTimelineItem(s, y, date, text, i) {
   s.addShape(SH.ellipse, { x: 0.86, y: y + 0.05, w: 0.32, h: 0.32, fill: { color: i % 2 ? C.blue : C.teal }, line: { color: i % 2 ? C.blue : C.teal } });
@@ -244,7 +244,7 @@ sectionSlide(++n, "Section 4", "AI gateway capabilities deep dive", "25–40 · 
   addCard(s, 0.75, 4.31, 3.35, 1.15, "Content safety", "Prompt Shields, harm categories and blocklists enforced centrally.", C.amber, "CS");
   s.addShape(SH.rect, { x: 4.85, y: 1.33, w: 7.45, h: 3.95, fill: { color: "06152D" }, line: { color: "06152D" }, shadow: freshShadow(0.1) });
   s.addText(`<llm-content-safety backend-id=\"content-safety\" shield-prompt=\"true\">\n  <categories output-type=\"EightSeverityLevels\">\n    <category name=\"Hate\" threshold=\"4\" />\n    <category name=\"SelfHarm\" threshold=\"4\" />\n    <category name=\"Sexual\" threshold=\"4\" />\n    <category name=\"Violence\" threshold=\"4\" />\n  </categories>\n</llm-content-safety>`, { x: 5.15, y: 1.62, w: 6.82, h: 2.65, fontFace: "Consolas", fontSize: 10.3, color: "D7E7F6", margin: 0.08, breakLine: false, fit: "shrink" });
-  s.addText("Demo: jailbreak blocked before it reaches gpt-5.4-nano.", { x: 5.15, y: 4.67, w: 6.82, h: 0.25, fontFace: "Segoe UI Semibold", fontSize: 11, color: C.teal, margin: 0 });
+  s.addText("Demo: jailbreak blocked before it reaches gpt-6.1-sol.", { x: 5.15, y: 4.67, w: 6.82, h: 0.25, fontFace: "Segoe UI Semibold", fontSize: 11, color: C.teal, margin: 0 });
   addNotes(s, "Security starts with removing model keys from application code. In the demo, APIM uses its managed identity to call Foundry, while applications only know the APIM subscription key. The llm-content-safety policy provides a single safety baseline across chat, MCP tool calls and A2A agent traffic.");
 }
 
@@ -288,7 +288,7 @@ sectionSlide(++n, "Section 4", "AI gateway capabilities deep dive", "25–40 · 
   });
   s.addText("Token usage by product", { x: 1.02, y: 4.25, w: 3.45, h: 0.16, fontFace: "Segoe UI Semibold", fontSize: 9.5, color: C.navy, align: "center", margin: 0 });
   s.addShape(SH.rect, { x: 5.15, y: 1.25, w: 7.1, h: 3.45, fill: { color: "06152D" }, line: { color: "06152D" }, shadow: freshShadow(0.08) });
-  s.addText(`AppMetrics\n| where Namespace == \"ai-gateway\"\n| summarize Tokens=sum(Sum) by Product\n\nApiManagementGatewayLlmLog\n| summarize Calls=count() by DeploymentName\n| where DeploymentName == \"gpt-5.4-nano\"`, { x: 5.45, y: 1.6, w: 6.5, h: 2.3, fontFace: "Consolas", fontSize: 11.3, color: "D7E7F6", margin: 0.05, fit: "shrink" });
+  s.addText(`AppMetrics\n| where Namespace == \"ai-gateway\"\n| summarize Tokens=sum(Sum) by Product\n\nApiManagementGatewayLlmLog\n| summarize Calls=count() by DeploymentName\n| where DeploymentName == \"gpt-6.1-sol\"`, { x: 5.45, y: 1.6, w: 6.5, h: 2.3, fontFace: "Consolas", fontSize: 11.3, color: "D7E7F6", margin: 0.05, fit: "shrink" });
   s.addText("Dimensions: Subscription ID · Product · API ID · Client IP", { x: 5.45, y: 4.18, w: 6.55, h: 0.16, fontFace: "Segoe UI Semibold", fontSize: 9.2, color: C.teal, margin: 0 });
   addCard(s, 1.0, 5.32, 3.55, 0.75, "Workbook", "Built-in workbook surfaces consumption patterns.", C.blue, "W", { bodySize: 8.1 });
   addCard(s, 4.9, 5.32, 3.55, 0.75, "FinOps", "Chargeback per team, product and subscription.", C.amber, "$", { bodySize: 8.1 });
@@ -305,11 +305,11 @@ sectionSlide(++n, "Section 4", "AI gateway capabilities deep dive", "25–40 · 
   addCard(s, 9.3, 1.15, 2.6, 1.08, "API Center", "Registry for APIs, MCP servers and agents.", C.blue, "AC", { bodySize: 8.8 });
   addCard(s, 9.3, 2.65, 2.6, 1.08, "Limits", "MCP: tools only, not Consumption, not workspaces.", C.amber, "!", { bodySize: 8.8 });
   addCard(s, 9.3, 4.15, 2.6, 1.08, "Policy scope", "Policies apply across all tools in a server.", C.teal, "P", { bodySize: 8.8 });
-  s.addText("Zava Retail REST API becomes /zava-mcp/mcp with tools: search-products and get-order-status.", { x: 1.1, y: 5.55, w: 10.8, h: 0.25, fontFace: "Segoe UI Semibold", fontSize: 12, color: C.navy, align: "center", margin: 0 });
-  addNotes(s, "MCP and agents are important because enterprises are moving from direct model calls to tool-using systems. APIM can expose existing REST APIs as MCP servers, pass through existing MCP servers, and import A2A agent APIs. Stress the limits: MCP is tools-only today, not available in Consumption, and not supported inside workspaces.");
+  s.addText("D6: Responses API turns the MCP tool list into function tools; APIM policies still apply.", { x: 1.1, y: 5.55, w: 10.8, h: 0.25, fontFace: "Segoe UI Semibold", fontSize: 12, color: C.navy, align: "center", margin: 0 });
+  addNotes(s, "MCP and agents are important because enterprises are moving from direct model calls to tool-using systems. APIM can expose existing REST APIs as MCP servers, pass through existing MCP servers, and import A2A agent APIs. D6 uses the Responses API with tools converted from the MCP tool list, and the same gateway policies apply to Chat Completions and Responses API traffic. Stress the limits: MCP is tools-only today, not available in Consumption, and not supported inside workspaces.");
 }
 
-sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divider to switch from concepts to the deployed repository. Remind the audience that the live demo uses Basic v2, two Foundry accounts, gpt-5.4-nano, product-scoped token budgets, content safety, MCP and observability.", "05");
+sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divider to switch from concepts to the deployed repository. Remind the audience that the live demo uses Basic v2, two Foundry resources plus projects, gpt-6.1-sol, product-scoped token budgets, content safety, MCP and observability.", "05");
 
 {
   const s = newSlide("Reference architecture"); n++;
@@ -331,34 +331,34 @@ sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divid
   ];
   pills.forEach(([p, x, y, w], i) => addChip(s, x, y, p, i === 1 ? C.paleAmber : C.paleTeal, C.navy, w));
   s.addText("policy chain on every model and tool call", { x: 3.55, y: 3.85, w: 3.9, h: 0.3, fontFace: "Segoe UI", fontSize: 9, color: C.paleTeal, align: "center", margin: 0 });
-  node(8.9, 1.3, 2.9, 0.95, "Foundry Sweden Central\ngpt-5.4-nano", C.paleBlue, C.blue);
-  node(8.9, 2.6, 2.9, 0.95, "Foundry France Central\ngpt-5.4-nano", C.paleTeal, C.teal);
+  node(8.72, 1.1, 3.25, 1.18, "Foundry project · Sweden Central\nproj-apimaigw-swc\ngpt-6.1-sol · GlobalStandard\nv2026-09-29 · 100K TPM", C.paleBlue, C.blue, 7.5);
+  node(8.72, 2.55, 3.25, 1.18, "Foundry project · France Central\nproj-apimaigw-frc\ngpt-6.1-sol · GlobalStandard\nv2026-09-29 · 100K TPM", C.paleTeal, C.teal, 7.5);
   node(8.9, 3.9, 2.9, 0.85, "MCP server\n/zava-mcp/mcp", C.paleAmber, C.amber);
   node(8.9, 5.3, 2.9, 0.85, "Zava Retail API\nsearch-products · get-order-status", C.white, "D8E2EC", 9);
   node(3.3, 5.3, 4.4, 0.85, "Application Insights · Log Analytics\ntoken metrics per product · LLM logs", C.white, "D8E2EC", 10);
   arrowLine(2.8, 2.9, 0.5, 0);
-  arrowLine(7.7, 1.78, 1.2, 0);
-  arrowLine(7.7, 3.08, 1.2, 0);
+  arrowLine(7.7, 1.69, 1.02, 0);
+  arrowLine(7.7, 3.14, 1.02, 0);
   arrowLine(7.7, 4.3, 1.2, 0);
   arrowLine(10.35, 4.75, 0, 0.55);
   arrowLine(5.5, 4.45, 0, 0.85, true);
   s.addText("Model path", { x: 7.8, y: 1.5, w: 1.0, h: 0.2, fontFace: "Segoe UI Semibold", fontSize: 8, color: C.blue, margin: 0 });
   s.addText("Tool path", { x: 7.8, y: 4.02, w: 1.0, h: 0.2, fontFace: "Segoe UI Semibold", fontSize: 8, color: C.amber, margin: 0 });
   s.addText("telemetry", { x: 5.62, y: 4.75, w: 1.0, h: 0.2, fontFace: "Segoe UI Semibold", fontSize: 8, color: C.slate, margin: 0 });
-  addNotes(s, "This is the main architecture diagram and is drawn with editable native shapes. Read it left to right: apps and agents call APIM, policies execute as a chain, model traffic goes to the Foundry backend pool, and tool traffic goes through the MCP server to the mocked Zava Retail API. Observability is emitted to Application Insights and Log Analytics.");
+  addNotes(s, "This is the main architecture diagram and is drawn with editable native shapes. Read it left to right: apps and agents call APIM, policies execute as a chain, model traffic goes to the current Foundry resource plus project in each region, and tool traffic goes through the MCP server to the mocked Zava Retail API. APIM backends call the Foundry OpenAI v1 endpoint with managed identity and key auth disabled. Observability is emitted to Application Insights and Log Analytics.");
 }
 
 {
   const s = newSlide("Live demo map"); n++;
   title(s, "Live demo map: D1–D8", n, "Live demo");
   const demos = [
-    ["D1", "Keyless chat", "200 via France Central; token headers show 44 prompt / 51 completion and 19,905 remaining."],
-    ["D2", "Load balancing", "Six calls spread across Sweden Central and France Central; circuit breaker explained."],
-    ["D3", "Token budgets", "Bronze hits 429 with Retry-After; Gold continues; monthly quota returns 403."],
+    ["D1", "Keyless chat", "200 via Sweden Central; token headers show 44 prompt / 94 completion and 19,862 remaining."],
+    ["D2", "Load balancing", "Six calls alternate France Central and Sweden Central; circuit breaker explained."],
+    ["D3", "Token budgets", "Bronze returns 200 x6 then 429 Retry-After 11; Gold continues."],
     ["D4", "Content safety", "Benign prompt passes; jailbreak blocked by Prompt Shields."],
     ["D5", "MCP server", "Initialize, tools/list, tools/call search-products and get-order-status."],
-    ["D6", "Agent", "Model calls MCP tools via gateway to answer product and order questions."],
-    ["D7", "Observability", "AppMetrics by Product and ApiManagementGatewayLlmLog by DeploymentName gpt-5.4-nano."],
+    ["D6", "Agent", "Responses API converts MCP tools to function tools; store=false keeps it stateless."],
+    ["D7", "Observability", "AppMetrics by Product and ApiManagementGatewayLlmLog by DeploymentName gpt-6.1-sol."],
     ["D8", "CI/CD", "Bicep deployed by GitHub Actions: deploy, smoke test, run demo."],
   ];
   demos.forEach((d, i) => {
@@ -374,11 +374,11 @@ sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divid
 {
   const s = newSlide("Backup: D1-D2"); n++;
   title(s, "Backup demo narrative: D1 keyless chat + D2 failover", n, "If live demo fails");
-  addCard(s, 0.75, 1.2, 5.7, 3.0, "D1 verified output", "HTTP 200 via France Central. App uses only an APIM subscription key; APIM authenticates to Foundry with managed identity.", C.teal, "D1", { bodySize: 10.2 });
-  addCard(s, 6.9, 1.2, 5.7, 3.0, "D2 verified output", "Six requests alternate Sweden Central / France Central. Circuit breaker remains ready for 429/5xx failover.", C.blue, "D2", { bodySize: 10.2 });
+  addCard(s, 0.75, 1.2, 5.7, 3.0, "D1 verified output", "HTTP 200 via Sweden Central. App uses only an APIM subscription key; APIM authenticates to Foundry with managed identity.", C.teal, "D1", { bodySize: 10.2 });
+  addCard(s, 6.9, 1.2, 5.7, 3.0, "D2 verified output", "Six requests alternate France Central / Sweden Central. Circuit breaker remains ready for 429/5xx failover.", C.blue, "D2", { bodySize: 10.2 });
   s.addShape(SH.rect, { x: 1.1, y: 4.8, w: 11.1, h: 0.75, fill: { color: "06152D" }, line: { color: "06152D" } });
-  s.addText(`D1: 200 OK · region=francecentral · prompt=44 · completion=51 · remaining=19905\nD2: swedencentral → francecentral → swedencentral → francecentral → swedencentral → francecentral`, { x: 1.35, y: 5.03, w: 10.6, h: 0.24, fontFace: "Consolas", fontSize: 10.0, color: "D7E7F6", margin: 0, fit: "shrink" });
-  addNotes(s, "If the live environment is unavailable, use this as the screenshot-style talk track. D1 proves keyless backend access and stable client code with the verified France Central response. D2 proves that load balancing is active by alternating requests across Sweden Central and France Central.");
+  s.addText(`D1: 200 OK · region=swedencentral · prompt=44 · completion=94 · remaining=19862\nD2: francecentral → swedencentral → francecentral → swedencentral → francecentral → swedencentral`, { x: 1.35, y: 5.03, w: 10.6, h: 0.24, fontFace: "Consolas", fontSize: 10.0, color: "D7E7F6", margin: 0, fit: "shrink" });
+  addNotes(s, "If the live environment is unavailable, use this as the screenshot-style talk track. D1 proves keyless backend access and stable client code with the verified Sweden Central response: 44 prompt tokens, 94 completion tokens and 19,862 remaining. D2 proves that load balancing is active by alternating requests across France Central and Sweden Central.");
 }
 
 {
@@ -386,9 +386,9 @@ sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divid
   title(s, "Backup demo narrative: D3 token budgets per team", n, "If live demo fails");
   addCard(s, 0.8, 1.2, 3.35, 1.28, "Gold product", "20,000 tokens/min · 5M tokens/month · customer support copilot keeps running.", C.teal, "G");
   addCard(s, 4.75, 1.2, 3.35, 1.28, "Bronze product", "300 tokens/min · 100K tokens/month · marketing sandbox is intentionally constrained.", C.amber, "B");
-  addCard(s, 8.7, 1.2, 3.35, 1.28, "Gateway result", "Bronze returns 200 five times, then 429 with Retry-After; Gold still returns 200.", C.red, "429");
+  addCard(s, 8.7, 1.2, 3.35, 1.28, "Gateway result", "Bronze returns 200 six times, then 429 with Retry-After 11; Gold still returns 200.", C.red, "429");
   s.addShape(SH.rect, { x: 1.0, y: 3.15, w: 11.3, h: 1.55, fill: { color: "06152D" }, line: { color: "06152D" } });
-  s.addText(`Bronze calls: 200 x5 · remaining tokens: 228, 162, 104, 52, 0\nThen: HTTP/1.1 429 Too Many Requests · Retry-After returned\nGold call after Bronze throttle: HTTP 200`, { x: 1.35, y: 3.48, w: 10.6, h: 0.58, fontFace: "Consolas", fontSize: 12.1, color: "D7E7F6", margin: 0, fit: "shrink" });
+  s.addText(`Bronze calls: 200 x6 · remaining: 239, 176, 123, 81, 9, 0\nThen: HTTP/1.1 429 Too Many Requests · Retry-After: 11\nGold call after Bronze throttle: HTTP 200`, { x: 1.35, y: 3.48, w: 10.6, h: 0.58, fontFace: "Consolas", fontSize: 12.1, color: "D7E7F6", margin: 0, fit: "shrink" });
   s.addText("The business policy is readable: teams get different budgets without changing model deployments.", { x: 1.2, y: 5.35, w: 10.7, h: 0.3, fontFace: "Segoe UI Semibold", fontSize: 14, color: C.navy, align: "center", margin: 0 });
   addNotes(s, "Explain that this is product-scoped governance. Bronze is deliberately small to show rate limiting quickly, while Gold continues to work. The headers make the policy visible to client teams and help developers back off gracefully.");
 }
@@ -396,7 +396,7 @@ sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divid
 {
   const s = newSlide("Backup: D4"); n++;
   title(s, "Backup: D4 content safety blocks prompt attack", n, "If live demo fails");
-  addCard(s, 0.85, 1.25, 5.4, 1.55, "Benign prompt", "Verified HTTP 200; forwarded through APIM to gpt-5.4-nano.", C.teal, "OK", { bodySize: 10.5 });
+  addCard(s, 0.85, 1.25, 5.4, 1.55, "Benign prompt", "Verified HTTP 200; forwarded through APIM to gpt-6.1-sol.", C.teal, "OK", { bodySize: 10.5 });
   addCard(s, 7.05, 1.25, 5.4, 1.55, "Jailbreak prompt", "Verified HTTP 403 from llm-content-safety before the model call.", C.red, "403", { bodySize: 10.5 });
   s.addShape(SH.rect, { x: 1.15, y: 3.45, w: 10.95, h: 1.2, fill: { color: "06152D" }, line: { color: "06152D" } });
   s.addText(`HTTP/1.1 403 Forbidden\n{\"statusCode\":403,\"message\":\"Request failed content safety check.\"}`, { x: 1.45, y: 3.78, w: 10.35, h: 0.35, fontFace: "Consolas", fontSize: 12, color: "D7E7F6", margin: 0, fit: "shrink" });
@@ -408,23 +408,23 @@ sectionSlide(++n, "Section 5", "Live demo", "40–65 · 25 min", "Use this divid
   const s = newSlide("Backup: D5-D6"); n++;
   title(s, "Backup: D5 MCP tools + D6 agent", n, "If live demo fails");
   addCard(s, 0.8, 1.12, 5.65, 1.25, "D5: tools/list", "Server name: Azure API Management. Tools: search-products and get-order-status.", C.teal, "D5");
-  addCard(s, 6.9, 1.12, 5.65, 1.25, "D6: model decides", "Agent called both MCP tools through the gateway and composed the answer.", C.blue, "D6");
+  addCard(s, 6.9, 1.12, 5.65, 1.25, "D6: Responses API", "Agent converted MCP tools into function tools; store=false keeps the turn stateless.", C.blue, "D6");
   s.addShape(SH.rect, { x: 0.9, y: 2.8, w: 5.5, h: 2.0, fill: { color: "06152D" }, line: { color: "06152D" } });
   s.addText(`server: \"Azure API Management\"\ntools/list → [\"search-products\", \"get-order-status\"]\ntools/call search-products {\"category\":\"outdoor\",\"maxPrice\":100}`, { x: 1.18, y: 3.08, w: 5.0, h: 1.15, fontFace: "Consolas", fontSize: 10.1, color: "D7E7F6", margin: 0, fit: "shrink" });
   s.addShape(SH.rect, { x: 6.9, y: 2.8, w: 5.5, h: 2.0, fill: { color: "06152D" }, line: { color: "06152D" } });
-  s.addText(`Agent answer:\n\"Trail backpack 30L (€89.9) and Headlamp 400lm (€34.5) are under 100 EUR.\nORD-1042 is Out for delivery with Zava Express.\"`, { x: 7.18, y: 3.12, w: 5.0, h: 1.05, fontFace: "Consolas", fontSize: 10.2, color: "D7E7F6", margin: 0, fit: "shrink" });
+  s.addText(`Agent answer:\n\"Trail backpack 30L (€89.90) and Headlamp 400lm (€34.50) are under 100 EUR.\nORD-1042 is out for delivery with Zava Express.\"`, { x: 7.18, y: 3.12, w: 5.0, h: 1.05, fontFace: "Consolas", fontSize: 10.2, color: "D7E7F6", margin: 0, fit: "shrink" });
   s.addText("The same APIM policies protect tools and model calls, so agent autonomy stays governed.", { x: 1.25, y: 5.38, w: 10.8, h: 0.25, fontFace: "Segoe UI Semibold", fontSize: 13, color: C.navy, align: "center", margin: 0 });
-  addNotes(s, "D5 proves that an existing REST API can become an MCP server through APIM. D6 then shows the agentic behavior: the model chooses to call tools via the gateway. If showing this as a fallback, read the expected answer and point back to the architecture slide.");
+  addNotes(s, "D5 proves that an existing REST API can become an MCP server through APIM; get-order-status returns ORD-1042 as out for delivery. D6 uses the Responses API through APIM at /inference/openai/v1/responses. The client converts the MCP tool list into function tools, sends store=false, resends encrypted reasoning items for stateless load-balanced turns, and model turns were served by both France Central and Sweden Central.");
 }
 
 {
   const s = newSlide("Backup: D7-D8"); n++;
   title(s, "Backup demo narrative: D7 observability + D8 CI/CD", n, "If live demo fails");
   addCard(s, 0.8, 1.15, 3.4, 1.25, "D7 token metrics", "AppMetrics shows token consumption by Product: Gold and Bronze.", C.teal, "KQL");
-  addCard(s, 4.95, 1.15, 3.4, 1.25, "D7 LLM logs", "ApiManagementGatewayLlmLog groups calls by DeploymentName: gpt-5.4-nano.", C.blue, "LOG");
+  addCard(s, 4.95, 1.15, 3.4, 1.25, "D7 LLM logs", "ApiManagementGatewayLlmLog groups calls by DeploymentName: gpt-6.1-sol.", C.blue, "LOG");
   addCard(s, 9.1, 1.15, 3.4, 1.25, "D8 CI/CD", "GitHub Actions deploys Bicep, smoke-tests and runs demo scenarios.", C.amber, "CI");
   s.addShape(SH.rect, { x: 1.0, y: 3.0, w: 11.25, h: 1.35, fill: { color: "06152D" }, line: { color: "06152D" } });
-  s.addText(`AppMetrics | summarize Tokens=sum(Sum) by Product   // Gold, Bronze\nApiManagementGatewayLlmLog | summarize Calls=count() by DeploymentName   // gpt-5.4-nano\n.github/workflows/deploy.yml → deploy → smoke test → run demo`, { x: 1.3, y: 3.35, w: 10.7, h: 0.52, fontFace: "Consolas", fontSize: 10.6, color: "D7E7F6", margin: 0, fit: "shrink" });
+  s.addText(`AppMetrics | summarize Tokens=sum(Sum) by Product   // Gold, Bronze\nApiManagementGatewayLlmLog | summarize Calls=count() by DeploymentName   // gpt-6.1-sol\n.github/workflows/deploy.yml → deploy → smoke test → run demo`, { x: 1.3, y: 3.35, w: 10.7, h: 0.52, fontFace: "Consolas", fontSize: 10.6, color: "D7E7F6", margin: 0, fit: "shrink" });
   s.addText("Observability and deployment evidence turn the demo into an operational pattern.", { x: 1.3, y: 5.24, w: 10.6, h: 0.24, fontFace: "Segoe UI Semibold", fontSize: 13, color: C.navy, align: "center", margin: 0 });
   addNotes(s, "D7 gives operators evidence that the gateway is doing its job. D8 proves the environment is not a hand-built portal demo; it is Bicep deployed by GitHub Actions. Keep this concise in the live session because it is the bonus scenario.");
 }
