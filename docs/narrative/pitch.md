@@ -59,14 +59,14 @@ flowchart LR
 
 ### Proof points and demo
 
-The live demo uses Zava Retail:
+The live demo uses Zava Retail with current Foundry resources and projects, not classic hub-based projects or Azure OpenAI resources:
 
 1. Keyless chat through APIM while APIM uses managed identity to Foundry.
 2. Load balancing across Sweden Central and France Central model deployments.
 3. Gold and Bronze product token budgets, including Bronze 429 behavior.
 4. Prompt Shield blocking a jailbreak attempt.
 5. REST API exposed as MCP server with `search-products` and `get-order-status` tools.
-6. Agent flow where the model and MCP tools both go through the gateway.
+6. Responses API agent flow where reasoning model turns and MCP tools both go through the gateway.
 7. Token metrics and LLM logs in Application Insights and Log Analytics.
 8. Bicep and GitHub Actions deployment path.
 
@@ -112,7 +112,7 @@ Model tokens are billed separately by Foundry or the model provider. The gateway
 | APIM adds cost. | Basic v2 is about $150/month list price in US East with 10M calls/unit included. Compare that to duplicated platform work, incident cost, and surprise token spend. Model tokens remain billed separately. |
 | We already use LiteLLM, Kong, or another proxy/gateway. | Keep what works. APIM is strongest where Azure-native governance matters: managed identity to Foundry, APIM products/subscriptions, Azure Monitor, API Center, MCP server management, and Foundry AI gateway integration. |
 | We want multi-model and multi-provider, not lock-in. | APIM can front Foundry, OpenAI-compatible endpoints, Anthropic-format APIs on v2 tiers, Google Vertex AI, Amazon Bedrock, Gemini, and self-hosted endpoints. Unified model API is preview and should be validated for each provider. |
-| Why not Microsoft Foundry alone? | Foundry is the model, agent, evaluation, and project experience. The AI gateway in Microsoft Foundry is powered by APIM, giving Foundry users APIM governance from the Foundry control plane with APIM available for advanced policies and networking. |
+| Why not Microsoft Foundry alone? | Foundry is the model, agent, evaluation, and project experience. The demo uses the current Foundry resource and project model in `ai.azure.com`; the AI gateway in Microsoft Foundry is powered by APIM, giving Foundry users APIM governance from the Foundry control plane with APIM available for advanced policies and networking. |
 | MCP is a security risk. | Uncontrolled tool calling is a risk. APIM provides a governed MCP entry point with authentication, rate limits, quotas, logging, and content safety coverage for MCP tool calls. MCP support is tools-only and not available in workspaces as of this brief. |
 | Token limits are not enough for FinOps. | Token limits prevent runaway usage. `llm-emit-token-metric`, LLM logs, dimensions such as Product and Subscription ID, and the FinOps lab pattern support attribution and chargeback. |
 | What happens during Black Friday 429s? | Backend pools, retry, priority or weighted routing, and circuit breaker can route around overloaded deployments. Circuit breaker honors backend `Retry-After` and is not available in Consumption. |

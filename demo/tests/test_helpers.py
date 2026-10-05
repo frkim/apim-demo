@@ -17,7 +17,7 @@ CFG = DemoConfig(
     gateway_url="https://apim-test.azure-api.net",
     gold_key="gold",
     bronze_key="bronze",
-    model="gpt-5.4-nano",
+    model="gpt-6.1-sol",
     log_analytics_workspace_id="",
 )
 
@@ -43,18 +43,16 @@ def test_to_openai_tools_converts_mcp_descriptors() -> None:
     assert converted == [
         {
             "type": "function",
-            "function": {
-                "name": "search-products",
-                "description": "Search",
-                "parameters": {"type": "object", "properties": {}},
-            },
+            "name": "search-products",
+            "description": "Search",
+            "parameters": {"type": "object", "properties": {}},
         }
     ]
 
 
 def test_to_openai_tools_defaults_missing_schema() -> None:
     converted = scenarios.to_openai_tools([{"name": "ping"}])
-    assert converted[0]["function"]["parameters"] == {"type": "object", "properties": {}}
+    assert converted[0]["parameters"] == {"type": "object", "properties": {}}
 
 
 @pytest.mark.parametrize(

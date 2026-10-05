@@ -27,7 +27,7 @@ Run `az login` and select the demo subscription before launching scenarios.
 | `APIM_GOLD_KEY` | No | Gold product subscription key override. |
 | `APIM_BRONZE_KEY` | No | Bronze product subscription key override. |
 | `LOG_ANALYTICS_WORKSPACE_ID` | No | Workspace customer ID for KQL queries. |
-| `AI_GATEWAY_MODEL` | No | Model deployment name; defaults to `gpt-5.4-nano`. |
+| `AI_GATEWAY_MODEL` | No | Model deployment name; defaults to `gpt-6.1-sol`. |
 
 ## Scenarios
 
@@ -45,12 +45,12 @@ python -m ai_gateway chat
 
 | Scenario | Command | What it demonstrates | Expected output summary |
 | --- | --- | --- | --- |
-| D1 | `python -m ai_gateway chat` | OpenAI SDK traffic through APIM; APIM uses managed identity to Foundry. | HTTP 200, model answer, backend headers, token headers. |
-| D2 | `python -m ai_gateway load-balance` | Weighted backend pool across Sweden Central and France Central. | Six HTTP 200 rows with both regions represented. |
-| D3 | `python -m ai_gateway token-limit` | Bronze product `llm-token-limit` enforcement. | Bronze receives HTTP 429 with `Retry-After`; Gold still returns HTTP 200. |
-| D4 | `python -m ai_gateway content-safety` | Prompt Shields and harm-category filtering at the gateway. | Benign prompt succeeds; jailbreak prompt returns HTTP 403. |
-| D5 | `python -m ai_gateway mcp` | APIM-generated MCP server from the Zava REST API. | `tools/list` shows `search-products` and `get-order-status`; both calls return data. |
-| D6 | `python -m ai_gateway agent` | Model and MCP tool calls governed by the same gateway. | Agent calls both tools and answers the user question. |
+| D1 | `python -m ai_gateway chat` | OpenAI SDK traffic through APIM; APIM uses managed identity to Foundry. | HTTP 200 through Sweden Central, 44/94 tokens, 19,862 remaining. |
+| D2 | `python -m ai_gateway load-balance` | Weighted backend pool across Sweden Central and France Central. | Six HTTP 200 rows alternating France Central and Sweden Central. |
+| D3 | `python -m ai_gateway token-limit` | Bronze product `llm-token-limit` enforcement. | Bronze succeeds six times with remaining tokens 239, 176, 123, 81, 9, and 0, then HTTP 429 with `Retry-After: 11`; Gold still returns HTTP 200. |
+| D4 | `python -m ai_gateway content-safety` | Prompt Shields and harm-category filtering at the gateway. | Benign prompt returns `REI Co-op Half Dome SL 2+...`; jailbreak prompt returns HTTP 403 with `Request failed content safety check.` |
+| D5 | `python -m ai_gateway mcp` | APIM-generated MCP server from the Zava REST API. | `tools/list` shows `search-products` and `get-order-status`; order `ORD-1042` is `Out for delivery`. |
+| D6 | `python -m ai_gateway agent` | Responses API model turns and MCP tool calls governed by the same gateway. | Agent calls `search-products` and `get-order-status`, then answers with `Trail backpack 30L (€89.90)`, `Headlamp 400lm (€34.50)`, and `ORD-1042` out for delivery with Zava Express. |
 | D7 | `python -m ai_gateway metrics` | Token metrics and LLM logs through KQL. | Rows from `AppMetrics` and `ApiManagementGatewayLlmLog` after ingestion delay. |
 
 ## Development quality gates
@@ -72,6 +72,7 @@ python -m pytest -q
 | Bronze does not throttle | Re-run `token-limit` or increase prompt length; token counts can vary. |
 | Bronze throttles too soon in rehearsal | Wait 60 seconds for the TPM bucket to refill. |
 | First content-safety call returns 500 | Retry once; the content safety backend can be cold immediately after deployment. |
+| Agent function tools fail on Chat Completions | Use the `agent` scenario's Responses API path; `gpt-6.1-sol` is a reasoning model and does not support function tools on Chat Completions with reasoning. |
 | Metrics show no rows | Wait several minutes for telemetry ingestion, then run `python -m ai_gateway metrics` again. |
 | MCP call fails after policy edits | Avoid reading `context.Response.Body` in MCP policies because buffering can break streaming responses. |
 

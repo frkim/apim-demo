@@ -3,11 +3,11 @@
 ## Project overview
 
 This repository demonstrates Azure API Management as an AI gateway for Zava Retail.
-It deploys APIM Basic v2, two Microsoft Foundry AI Services accounts, APIM AI policies, a REST-backed MCP server, and telemetry, then validates the flow with a Python demo client.
+It deploys APIM Basic v2, two current Microsoft Foundry resources and projects, APIM AI policies, a REST-backed MCP server, and telemetry, then validates the flow with a Python demo client.
 
 - **Client**: Python 3.12+ command-line demo package in `demo/`.
 - **Infrastructure**: Azure Bicep under `infra/`.
-- **Cloud**: Azure API Management, Microsoft Foundry AI Services, Application Insights, and Log Analytics.
+- **Cloud**: Azure API Management, current Microsoft Foundry resources and projects, Application Insights, and Log Analytics.
 - **Automation**: GitHub Actions for CI, deployment, smoke tests, and teardown.
 
 ## Setup
@@ -85,7 +85,8 @@ The local standards clone used to bootstrap this repository is `C:\temp\WindowsT
 - Application Insights and Log Analytics telemetry can take several minutes to ingest.
 - The first content-safety call after deployment can return a transient 500 while the backend warms; retry once.
 - APIM v2 instances are soft-deleted; purge deleted services before reusing names.
-- The default model requires GlobalStandard quota for `gpt-5.4-nano` in both `swedencentral` and `francecentral`.
+- The default model requires GlobalStandard quota for `gpt-6.1-sol` in both `swedencentral` and `francecentral`, with 100K TPM per region.
+- `gpt-6.1-sol` is a reasoning model: `reasoning_effort` supports `low`, `medium`, `high`, and `xhigh`; `none` is unsupported. Function tools are not supported on Chat Completions with reasoning, so the agent scenario uses the Responses API statelessly (`store=False`, `include=["reasoning.encrypted_content"]`, full input resent each turn) because APIM load-balances model turns across regions.
 - LLM logging captures prompts and completions; do not run sensitive prompts through the demo without an approved data-handling plan.
 
 ## Pull requests

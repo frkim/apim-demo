@@ -32,7 +32,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Delete resource group and purge AI Services accounts
+      - name: Delete resource group and purge Foundry resources
         env:
           RESOURCE_GROUP: ${{ inputs.confirm }}
         run: |

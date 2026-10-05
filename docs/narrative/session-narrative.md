@@ -193,11 +193,11 @@ Ask: "If you had to standardize one policy tomorrow, would it be managed identit
 
 **Talk track:**
 
-We are now in the Zava demo environment. The APIM service is Basic v2 in Sweden Central. Behind it are two Foundry AI Services accounts, one in Sweden Central and one in France Central, both with `gpt-5.4-nano` GlobalStandard deployment at 50K TPM. Local key auth is disabled. APIM has the managed identity role needed to call the backends.
+We are now in the Zava demo environment. The APIM service is Basic v2 in Sweden Central. Behind it are two current Foundry resources and projects, one in Sweden Central and one in France Central, both visible in `ai.azure.com` and both running `gpt-6.1-sol` version `2026-09-29` GlobalStandard at 100K TPM. Local key auth is disabled. APIM targets the Foundry endpoint `https://<account>.services.ai.azure.com/openai`, content safety uses the Cognitive Services endpoint, and APIM has the managed identity roles needed to call both.
 
 The inference API is at `/inference/openai/v1`, so an OpenAI-compatible client can keep its normal SDK shape. Products represent teams: Gold is the customer support copilot with a larger token budget, and Bronze is the marketing sandbox with a smaller budget.
 
-We will run eight scenarios. Watch for the pattern: every time the app, model, MCP server, or agent needs governance, the answer is not a new library in each app. The answer is a gateway policy.
+We will run eight scenarios. D6 uses the Responses API because `gpt-6.1-sol` is a reasoning model and function tools are not supported on Chat Completions with reasoning. Watch for the pattern: every time the app, model, MCP server, or agent needs governance, the answer is not a new library in each app. The answer is a gateway policy.
 
 **Audience interaction:**
 

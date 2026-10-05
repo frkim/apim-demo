@@ -1,6 +1,6 @@
 # Azure API Management AI Gateway demo
 
-This repository is a complete Azure API Management AI Gateway demo for Zava Retail: Bicep deploys API Management Basic v2, two Microsoft Foundry AI Services model backends, token budgets, content safety, MCP tooling, and observability; the Python demo client proves keyless chat, load balancing, throttling, safety enforcement, MCP tools, an agent flow, and token telemetry.
+This repository is a complete Azure API Management AI Gateway demo for Zava Retail: Bicep deploys API Management Basic v2, two current Microsoft Foundry resources and projects, token budgets, content safety, MCP tooling, and observability; the Python demo client proves keyless chat, load balancing, throttling, safety enforcement, MCP tools, a Responses API agent flow, and token telemetry.
 
 ## What's inside
 
@@ -19,7 +19,7 @@ This repository is a complete Azure API Management AI Gateway demo for Zava Reta
 | Research brief | [docs/research/apim-ai-gateway-research.md](docs/research/apim-ai-gateway-research.md) | APIM AI Gateway feature research and source index. |
 | Infrastructure | [infra/](infra/) | Subscription-scope Bicep, APIM policies, and OpenAPI specs. |
 | Demo client | [demo/](demo/) | Python package and tests for live scenarios. |
-| ADRs | [docs/adr/](docs/adr/) | Architecture decisions behind the demo. |
+| ADRs | [docs/adr/](docs/adr/) | Architecture decisions behind the demo, including [ADR-0005](docs/adr/0005-foundry-new-projects-and-gpt-6-1-sol.md) for current Foundry projects and `gpt-6.1-sol`. |
 
 ## Architecture
 
@@ -41,8 +41,8 @@ flowchart LR
 
     APIM --> Products
     APIM --> MCP
-    Pool --> FoundrySE[Foundry AI Services Sweden Central<br/>gpt-5.4-nano GlobalStandard 50K TPM]
-    Pool --> FoundryFR[Foundry AI Services France Central<br/>gpt-5.4-nano GlobalStandard 50K TPM]
+    Pool --> FoundrySE[Foundry project Sweden Central<br/>gpt-6.1-sol 2026-09-29<br/>GlobalStandard 100K TPM]
+    Pool --> FoundryFR[Foundry project France Central<br/>gpt-6.1-sol 2026-09-29<br/>GlobalStandard 100K TPM]
     Metrics --> AppInsights[Application Insights token metrics]
     Metrics --> LogAnalytics[Log Analytics LLM logs]
 ```
@@ -52,7 +52,7 @@ flowchart LR
 - Azure subscription with `Owner`, or `Contributor` plus `Role Based Access Control Administrator`, at subscription scope.
 - Azure CLI 2.60 or later with Bicep installed: `az version` and `az bicep version`.
 - Python 3.12 or later.
-- Model quota for `gpt-5.4-nano` GlobalStandard in both `swedencentral` and `francecentral`, with 50K TPM per region.
+- Model quota for `gpt-6.1-sol` GlobalStandard in both `swedencentral` and `francecentral`, with 100K TPM per region.
 - GitHub repository access that can configure Actions secrets, repository variables, and the `azure-demo` environment.
 - Python package restore through the Microsoft-protected feed configured on the workstation: `https://packagefeedproxy.microsoft.io/pypi/simple`.
 
@@ -98,19 +98,19 @@ $env:APIM_GATEWAY_URL = 'https://<apim-name>.azure-api.net'
 $env:APIM_GOLD_KEY = '<gold-subscription-key>'
 $env:APIM_BRONZE_KEY = '<bronze-subscription-key>'
 $env:LOG_ANALYTICS_WORKSPACE_ID = '<workspace-customer-id>'
-$env:AI_GATEWAY_MODEL = 'gpt-5.4-nano'
+$env:AI_GATEWAY_MODEL = 'gpt-6.1-sol'
 ```
 
 Expected live results:
 
 | Scenario | Command | Expected result |
 | --- | --- | --- |
-| D1 | `python -m ai_gateway chat` | HTTP 200 chat completion through France Central. |
-| D2 | `python -m ai_gateway load-balance` | Six requests alternate across Sweden Central and France Central. |
-| D3 | `python -m ai_gateway token-limit` | Bronze gets 429 after about five calls with `Retry-After`; Gold remains HTTP 200. |
-| D4 | `python -m ai_gateway content-safety` | Jailbreak prompt is blocked with HTTP 403 and `x-ai-gateway-error: ContentSafetyPolicyViolated`. |
-| D5 | `python -m ai_gateway mcp` | MCP `tools/list` and `tools/call` succeed for product search and order status. |
-| D6 | `python -m ai_gateway agent` | The agent calls both MCP tools and answers from tool results. |
+| D1 | `python -m ai_gateway chat` | HTTP 200 through Sweden Central, 44 prompt tokens, 94 total tokens, and 19,862 remaining tokens. |
+| D2 | `python -m ai_gateway load-balance` | Six HTTP 200 requests alternate across France Central and Sweden Central. |
+| D3 | `python -m ai_gateway token-limit` | Bronze returns HTTP 200 for six calls with remaining tokens 239, 176, 123, 81, 9, and 0, then HTTP 429 with `Retry-After: 11`; Gold remains HTTP 200. |
+| D4 | `python -m ai_gateway content-safety` | Benign prompt returns `REI Co-op Half Dome SL 2+...`; jailbreak prompt returns HTTP 403 with `Request failed content safety check.` |
+| D5 | `python -m ai_gateway mcp` | MCP `tools/list` and `tools/call` succeed; order `ORD-1042` is `Out for delivery`. |
+| D6 | `python -m ai_gateway agent` | Responses API agent calls `search-products` and `get-order-status`; France Central and Sweden Central serve model turns; final answer includes `Trail backpack 30L (€89.90)`, `Headlamp 400lm (€34.50)`, and `ORD-1042` out for delivery with Zava Express. |
 | D7 | `python -m ai_gateway metrics` | KQL returns token metrics per product and LLM logs after ingestion delay. |
 
 ## Quality gates
@@ -152,7 +152,8 @@ Purge any listed APIM instance if you need to reuse its name.
 
 ## Security notes
 
-- APIM uses its system-assigned managed identity to call Foundry; local auth is disabled on the AI Services accounts.
+- APIM uses its system-assigned managed identity to call current Foundry resources; local auth is disabled on those resources.
+- APIM model backends target the Foundry endpoint `https://<account>.services.ai.azure.com/openai` and the OpenAI v1 path `/openai/v1/...`; content safety still uses the account's `*.cognitiveservices.azure.com` endpoint.
 - No Foundry keys or APIM subscription keys are committed to the repository.
 - Demo subscription keys are fetched at runtime from APIM or supplied through environment variables.
 - Prefer GitHub Actions OIDC with `id-token: write`; use `AZURE_CREDENTIALS` only as a temporary fallback and rotate it regularly.

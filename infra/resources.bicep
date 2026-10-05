@@ -42,6 +42,7 @@ module foundry 'modules/foundry.bicep' = [for backend in foundryBackends: {
   name: 'foundry-${backend.name}'
   params: {
     accountName: 'ais-${workload}-${environmentName}-${suffix}-${backend.name}'
+    projectName: 'proj-${workload}-${backend.name}'
     location: backend.location
     modelName: modelName
     modelVersion: modelVersion
@@ -58,7 +59,7 @@ module gateway 'modules/ai-gateway.bicep' = {
     apimName: apim.outputs.name
     backends: [for (backend, i) in foundryBackends: {
       name: 'foundry-${backend.name}'
-      endpoint: foundry[i].outputs.endpoint
+      endpoint: foundry[i].outputs.foundryEndpoint
       priority: backend.priority
       weight: backend.weight
     }]
@@ -76,9 +77,11 @@ output modelDeploymentName string = modelName
 output foundryEndpoints array = [for (backend, i) in foundryBackends: {
   name: backend.name
   location: backend.location
-  endpoint: foundry[i].outputs.endpoint
+  endpoint: foundry[i].outputs.foundryEndpoint
+  projectEndpoint: foundry[i].outputs.projectEndpoint
 }]
 output primaryFoundryId string = foundry[0].outputs.id
+output primaryFoundryProjectEndpoint string = foundry[0].outputs.projectEndpoint
 output primaryFoundryLocation string = foundryBackends[0].location
 output appInsightsName string = monitoring.outputs.appInsightsName
 output logAnalyticsCustomerId string = monitoring.outputs.logAnalyticsCustomerId

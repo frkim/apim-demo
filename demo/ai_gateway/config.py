@@ -69,7 +69,7 @@ def _subscription_key(apim_id: str, subscription_name: str) -> str:
 def load_config() -> DemoConfig:
     """Return the demo configuration, querying Azure only for values not provided by the environment."""
     resource_group = os.environ.get("AZURE_RESOURCE_GROUP", DEFAULT_RESOURCE_GROUP)
-    model = os.environ.get("AI_GATEWAY_MODEL", "gpt-5.4-nano")
+    model = os.environ.get("AI_GATEWAY_MODEL", "gpt-6.1-sol")
     gateway_url = os.environ.get("APIM_GATEWAY_URL", "")
     gold_key = os.environ.get("APIM_GOLD_KEY", "")
     bronze_key = os.environ.get("APIM_BRONZE_KEY", "")

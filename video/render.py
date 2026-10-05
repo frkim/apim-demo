@@ -134,7 +134,7 @@ def title_card() -> Image.Image:
         font=BODY,
         fill=OFFWHITE,
     )
-    chips = ["APIM Basic v2", "Microsoft Foundry", "gpt-5.4-nano", "MCP", "Bicep + GitHub Actions"]
+    chips = ["APIM Basic v2", "Microsoft Foundry (new)", "GPT-6.1 Sol", "MCP", "Bicep + GitHub Actions"]
     x = 140
     for chip in chips:
         w = draw.textlength(chip, font=SMALL) + 40
@@ -175,7 +175,7 @@ def architecture_card() -> Image.Image:
     draw = ImageDraw.Draw(img)
     box(draw, (70, 190, 450, 330), "Gold team app", ["OpenAI SDK · 20K tokens/min", "5M tokens / month"], BLUE)
     box(draw, (70, 360, 450, 500), "Bronze sandbox", ["OpenAI SDK · 300 tokens/min", "100K tokens / month"], BLUE)
-    box(draw, (70, 530, 450, 670), "Agent / MCP client", ["Model calls + MCP tools", "one subscription key"], BLUE)
+    box(draw, (70, 530, 450, 670), "Agent / MCP client", ["Responses API + MCP tools", "one subscription key"], BLUE)
 
     draw.rounded_rectangle((560, 160, 1300, 830), radius=22, fill=(9, 24, 50), outline=TEAL, width=4)
     draw.text((590, 178), "API Management · AI gateway (Basic v2)", font=H3, fill=TEAL)
@@ -197,15 +197,15 @@ def architecture_card() -> Image.Image:
     box(
         draw,
         (1420, 190, 1850, 330),
-        "Foundry · Sweden Central",
-        ["gpt-5.4-nano · GlobalStandard", "key auth disabled"],
+        "Foundry project · Sweden",
+        ["gpt-6.1-sol · GlobalStandard", "key auth disabled"],
         TEAL,
     )
     box(
         draw,
         (1420, 360, 1850, 500),
-        "Foundry · France Central",
-        ["gpt-5.4-nano · GlobalStandard", "key auth disabled"],
+        "Foundry project · France",
+        ["gpt-6.1-sol · GlobalStandard", "key auth disabled"],
         TEAL,
     )
     box(draw, (1420, 560, 1850, 700), "Zava Retail REST API", ["search-products", "get-order-status"], AMBER)

@@ -34,7 +34,8 @@ SEGMENTS: list[Segment] = [
             "Here is the setup. Apps and agents call one endpoint, on an API Management Basic v2 gateway. "
             "Every request goes through a policy chain: managed identity authentication, content safety, "
             "a token budget per team, and token metrics. A load-balanced backend pool then routes it to "
-            "GPT 5.4 nano deployments in two regions. The same gateway also exposes our Zava retail REST API as an MCP server."
+            "GPT 6.1 Sol, deployed in two Microsoft Foundry projects, in Sweden Central and France Central. "
+            "The same gateway also exposes our Zava retail REST API as an MCP server."
         ),
     ),
     Segment(
@@ -46,8 +47,8 @@ SEGMENTS: list[Segment] = [
         narration=(
             "Demo one: a chat completion through the gateway, with the standard OpenAI SDK. "
             "The application only holds an API Management subscription key for the Gold team. "
-            "There is no model key anywhere. The gateway authenticates to Foundry with its managed identity, "
-            "and key authentication is actually disabled on the Foundry accounts. "
+            "There is no model key anywhere. The gateway authenticates to Microsoft Foundry with its managed identity, "
+            "and key authentication is actually disabled on the Foundry resources. "
             "The response headers show which regional backend served the call, the tokens used, "
             "and the tokens left in the team's per-minute budget."
         ),
@@ -112,8 +113,9 @@ SEGMENTS: list[Segment] = [
         scenario="agent",
         narration=(
             "Demo six: an agent. We ask which outdoor products cost less than one hundred euros, and where my order is. "
-            "The model, reached through the gateway, decides to call both MCP tools, also through the gateway, "
-            "and composes the answer. Model traffic and tool traffic are governed in one place."
+            "The agent uses the Responses API. GPT 6.1 Sol, reached through the gateway, decides to call both MCP tools, "
+            "also through the gateway, and composes the answer. The conversation is stateless, so each turn can be "
+            "served by a different region. Model traffic and tool traffic are governed in one place."
         ),
     ),
     Segment(
